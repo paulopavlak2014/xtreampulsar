@@ -11,7 +11,7 @@ Telegram: https://t.me/bulutworksdev
 **Xtream Codes API compatible · one-click migration · go live in 30 minutes.**
 
 [![License: BSL 1.1](https://img.shields.io/badge/license-BSL%201.1-blue.svg)](./LICENSE)
-[![Stars](https://img.shields.io/github/stars/dearbulut/xtreampulsar?style=social)](https://github.com/dearbulut/xtreampulsar/stargazers)
+[![Stars](https://img.shields.io/github/stars/paulopavlak2014/xtreampulsar?style=social)](https://github.com/paulopavlak2014/xtreampulsar/stargazers)
 [![Built with TypeScript](https://img.shields.io/badge/TypeScript-96%25-3178C6?logo=typescript&logoColor=white)](#tech-stack)
 [![NestJS](https://img.shields.io/badge/API-NestJS-E0234E?logo=nestjs&logoColor=white)](#tech-stack)
 [![React](https://img.shields.io/badge/UI-React%2018-61DAFB?logo=react&logoColor=black)](#tech-stack)
@@ -45,7 +45,7 @@ Try the full panel right now — no install required. This is a shared **demo in
 If you searched for an *"XtreamUI alternative"*, *"XUI.ONE alternative"*, a *"Docker IPTV panel"*, or a *"self-hosted Xtream Codes server"* — this is it.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dearbulut/xtreampulsar/main/apps/installer/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/paulopavlak2014/xtreampulsar/main/apps/installer/install.sh | sudo bash
 ```
 
 One command on a fresh Ubuntu server: Docker, secrets, database, panel, firewall and your **admin account** — done. [Full install guide ↓](#-install)
@@ -156,7 +156,7 @@ A domain is optional — you only need one if you want HTTPS.
 ### Option A — one command (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dearbulut/xtreampulsar/main/apps/installer/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/paulopavlak2014/xtreampulsar/main/apps/installer/install.sh | sudo bash
 ```
 
 > The command is a **single line** and starts with `curl -fsSL`. If you only paste the URL,
@@ -178,7 +178,7 @@ No license key is required — running it without `--key` installs in open-sourc
 **With a domain and free Let's Encrypt SSL:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dearbulut/xtreampulsar/main/apps/installer/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/paulopavlak2014/xtreampulsar/main/apps/installer/install.sh -o install.sh
 sudo bash install.sh --domain panel.example.com --email you@example.com
 ```
 
@@ -195,7 +195,7 @@ Use this if you already run Docker your own way, or you're developing.
 
 ```bash
 # 1. Clone
-git clone https://github.com/dearbulut/xtreampulsar.git
+git clone https://github.com/paulopavlak2014/xtreampulsar.git
 cd xtreampulsar
 
 # 2. Configure — set strong values for POSTGRES_PASSWORD,
@@ -311,7 +311,7 @@ sudo ./uninstall.sh             # removes everything (asks twice)
 Manual update without the installer scripts: `git pull && docker compose up -d --build`.
 </details>
 
-**Still stuck?** [Open an issue](https://github.com/dearbulut/xtreampulsar/issues/new/choose) with the
+**Still stuck?** [Open an issue](https://github.com/paulopavlak2014/xtreampulsar/issues/new/choose) with the
 output of `docker compose ps` and `docker compose logs --tail=100 api` — that's almost always enough
 to diagnose it. For quick questions: [Telegram](https://t.me/bulutworksdev).
 
