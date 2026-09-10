@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type Lang = 'tr' | 'en';
+export type Lang = 'tr' | 'en' | 'pt-br';
 
 const tr = {
   nav: {
@@ -368,7 +368,189 @@ const en: typeof tr = {
   },
 };
 
-const DICTS: Record<Lang, typeof tr> = { tr, en };
+const ptBr: typeof tr = {
+  nav: {
+    features: 'Recursos',
+    addons: 'Complementos Inclusos',
+    comparison: 'Comparação',
+    migration: 'Migração',
+    pricing: 'Preços',
+    faq: 'FAQ',
+    login: 'Login do Painel',
+    start: 'Começar Agora',
+  },
+  hero: {
+    badge: 'Painel de gerenciamento IPTV de nova geração',
+    title1: 'Um painel moderno para',
+    title2: 'toda a sua operação IPTV',
+    subtitle:
+      'Deixe os painéis legados para trás. Migração com um clique, sistema de revendedores integrado, portal do cliente, suporte com IA e todos os complementos que concorrentes vendem separadamente — em um pacote, por um preço.',
+    ctaPrimary: 'Começar Agora — €70/mês',
+    ctaSecondary: 'Explorar Recursos',
+    trust1: 'Instalação em ~5 minutos',
+    trust2: '100% compatível com Xtream API',
+    trust3: 'Cancele quando quiser',
+    terminalTitle: 'instalação — ao vivo em 5 minutos',
+    terminal: [
+      '$ curl -fsSL https://get.xtreampulsar.com | bash',
+      '✓ Ambiente Docker preparado',
+      '✓ Painel + banco de dados + Xtream API iniciados',
+      '✓ Certificado SSL instalado',
+      '→ Painel pronto: https://painel.seudominio.com',
+      '$ Importação: dump XtreamUI / M3U / Xtream API ✓',
+    ],
+  },
+  stats: {
+    uptime: 'Meta de uptime',
+    uptimeSuffix: '',
+    install: 'Minutos para instalar',
+    compat: 'Compatibilidade Xtream API',
+    support: 'Suporte',
+    supportValue: '24/7',
+  },
+  features: {
+    badge: 'Recursos',
+    title: 'Tudo que você espera de um painel IPTV.',
+    subtitle: 'E mais — tudo incluso desde o primeiro dia, nada de módulo pago.',
+    items: [
+      { title: '100% Compatível com Xtream API', desc: 'player_api.php, get.php, saídas M3U — seus apps e dispositivos de player funcionam sem alterações.' },
+      { title: 'Gerenciamento Ao Vivo • VOD • Séries', desc: 'Canais, filmes e séries com hierarquia de temporada/episódio. Metadados TMDB automáticos, pôsteres e duração.' },
+      { title: 'Migração com Um Clique', desc: 'De um dump de banco XtreamUI / XUI.ONE, lista M3U ou outro painel Xtream — migre com conteúdo, usuários e revendedores.' },
+      { title: 'Sincronização M3U Automática', desc: 'Suas listas fonte sincronizam automaticamente; séries são agrupadas em estrutura temporada/episódio.' },
+      { title: 'Sistema de Revendedores', desc: 'Revendedores baseados em créditos, sub-revendedores, portal dedicado, gerenciamento de pacotes e preços.' },
+      { title: 'API de Revendedor + WHMCS', desc: 'Seus revendedores automatizam via REST API; o módulo WHMCS pronto integra faturamento em minutos.' },
+      { title: 'Portal do Cliente', desc: 'Assinantes veem sua assinatura, obtêm links de playlist, reportam problemas e enviam mensagens de suporte.' },
+      { title: 'Bot de Suporte com IA', desc: 'Gera rascunhos de resposta com IA para solicitações de suporte — com sua chave Anthropic/OpenAI, totalmente sob seu controle.' },
+      { title: 'Segurança Anti-Restream', desc: 'Rastreamento de conexão, limites por IP, detecção de restream, bloqueio por país e Server Guard protegem suas transmissões.' },
+      { title: 'Backup Automático Criptografado', desc: 'Backups de banco de dados criptografados com AES-2000 rodam em agendamento e enviam para Dropbox remotamente.' },
+      { title: 'Gerenciamento EPG', desc: 'Múltiplas fontes EPG, mapeamento automático e manual de canais, guia de TV.' },
+      { title: 'White-Label + Endereços Separados', desc: 'Seu logo e cores; sirva painéis de revendedor e cliente em domínios separados — seu endereço de admin nunca aparece.' },
+    ],
+  },
+  addons: {
+    badge: 'Tudo Incluso',
+    title: 'Tudo que outros vendem separadamente — incluso.',
+    subtitle: 'Em painéis concorrentes cada um é um módulo pago. No XtreamPulsar todos fazem parte de um preço.',
+    included: 'Incluso',
+    elsewhere: 'extra em outros',
+    items: [
+      { title: 'Portal do Cliente', desc: 'Painel de autoatendimento do assinante + mensagens de suporte' },
+      { title: 'Sincronização M3U Automática', desc: 'Sincronização agendada de fontes' },
+      { title: 'API de Revendedor + WHMCS', desc: 'REST API e módulo WHMCS pronto' },
+      { title: 'Backup Remoto Criptografado', desc: 'AES-256 + upload automático para Dropbox' },
+      { title: 'IPTV Checker', desc: 'Ferramenta de verificação de linha/painel externo' },
+      { title: 'Bot de Suporte com IA', desc: 'Rascunhos de resposta com IA' },
+    ],
+  },
+  comparison: {
+    badge: 'Comparação',
+    title: 'A diferença em relação a painéis legados.',
+    subtitle: 'Pare de pagar por módulo em painéis que não são atualizados há anos.',
+    colFeature: 'Recurso',
+    colOthers: 'Painéis Legados',
+    colUs: 'XtreamPulsar',
+    rows: [
+      { label: 'Interface moderna e rápida', others: false, us: true },
+      { label: 'Desenvolvimento ativo e atualizações', others: false, us: true },
+      { label: 'Migração com um clique (dump / M3U / API)', others: false, us: true },
+      { label: 'Portal do cliente + mensagens de suporte', others: 'paid', us: true },
+      { label: 'API de Revendedor + módulo WHMCS', others: 'paid', us: true },
+      { label: 'Bot de suporte com IA', others: false, us: true },
+      { label: 'Backup remoto criptografado', others: 'paid', us: true },
+      { label: 'White-Label + painéis em domínios separados', others: 'paid', us: true },
+      { label: 'Interface em Português + Inglês', others: false, us: true },
+      { label: 'Todos os recursos por um preço', others: false, us: true },
+    ],
+    paidLabel: 'Pago extra',
+    yesLabel: 'Incluso',
+    noLabel: 'Não',
+  },
+  migration: {
+    badge: 'Migração',
+    title: 'Mudar não precisa ser assustador.',
+    subtitle: 'Migrar do seu painel atual para o XtreamPulsar leva três passos — conteúdo, usuários e revendedores incluídos.',
+    steps: [
+      { title: 'Conecte a Fonte', desc: 'Envie seu dump de banco XtreamUI / XUI.ONE, forneça sua lista M3U ou insira as credenciais da API do painel Xtream.' },
+      { title: 'Pré-visualize', desc: 'Veja os canais, filmes, séries, usuários e revendedores a serem importados. Escolha o modo de conflito: pular, mesclar ou sobrescrever.' },
+      { title: 'Importe', desc: 'Um clique inicia a transferência; o progresso é ao vivo, e importações interrompidas continuam de onde pararam.' },
+    ],
+  },
+  pricing: {
+    badge: 'Preços',
+    title: 'Um pacote. Tudo incluso.',
+    subtitle: 'Sem taxas por módulo, sem surpresas, sem níveis. Todos os recursos por um preço único.',
+    planName: 'XtreamPulsar Completo',
+    perMonth: '/mês',
+    planDesc: 'O painel inteiro, todos os complementos, todas as atualizações — uma licença.',
+    cta: 'Começar Agora',
+    features: [
+      'Usuários, transmissões e conteúdo ilimitados',
+      '100% compatibilidade com Xtream API',
+      'Gerenciamento Ao Vivo + VOD + Séries (temporada/episódio)',
+      'Migração com um clique (dump / M3U / Xtream API)',
+      'Sincronização M3U automática',
+      'Sistema de revendedores + API + WHMCS',
+      'Portal do cliente + mensagens de suporte',
+      'Bot de suporte com IA (sua chave)',
+      'Segurança anti-restream + Server Guard',
+      'Backup remoto automático criptografado com AES-256',
+      'Gerenciamento EPG + IPTV checker',
+      'White-Label + painéis em domínios separados',
+      'Interface em Português + Inglês',
+      'Atualizações gratuitas e suporte 24/7',
+    ],
+    note1: 'Assistência de instalação inclusa',
+    note2: 'Sem taxas ocultas',
+    note3: 'Cancele quando quiser',
+  },
+  faq: {
+    badge: 'FAQ',
+    title: 'Perguntas frequentes',
+    items: [
+      { q: 'Como funciona a instalação?', a: 'Instala no seu próprio servidor com um único comando (baseado em Docker). Leva cerca de 5 minutos; se preferir, nossa equipe faz a instalação completa — gratuitamente.' },
+      { q: 'Como migro do meu painel atual?', a: 'Migração com um clique de um dump de banco XtreamUI / XUI.ONE, lista M3U ou API do painel Xtream. Conteúdo, usuários e revendedores são transferidos; você pré-visualiza e depois aplica.' },
+      { q: 'Quais são os requisitos do servidor?', a: 'Um VPS/servidor dedicado rodando Ubuntu 22.04+ é suficiente. Operações pequenas podem começar com 4GB de RAM.' },
+      { q: 'O que inclui €70/mês?', a: 'Tudo: todos os recursos do painel, todos os complementos (portal do cliente, API + WHMCS, sync M3U automático, backup criptografado, IPTV checker, bot IA), white-label, atualizações e suporte.' },
+      { q: 'Como funciona o white-label?', a: 'Você define seu logo e cores. Sirva os painéis de revendedor e cliente em seus próprios subdomínios — seus revendedores e assinantes nunca veem o endereço de admin.' },
+      { q: 'O que acontece se eu cancelar?', a: 'A assinatura é mensal e você pode cancelar quando quiser. Seus dados ficam no seu servidor — pode exportá-los ou voltar quando quiser.' },
+    ],
+  },
+  cta: {
+    title: 'Atualize seu painel IPTV hoje.',
+    subtitle: 'Instalação em 5 minutos, migração com um clique. Sem risco — cancele quando quiser.',
+    button: 'Começar Agora — €70/mês',
+    login: 'Já é cliente? Login do painel',
+  },
+  footer: {
+    tagline: 'O painel de gerenciamento IPTV de nova geração feito para operadores.',
+    product: 'Produto',
+    resources: 'Recursos',
+    legal: 'Legal',
+    docs: 'Documentação',
+    contact: 'Contato',
+    privacy: 'Política de Privacidade',
+    terms: 'Termos de Serviço',
+    rights: 'Todos os direitos reservados.',
+  },
+  checkout: {
+    title: 'Obtenha sua licença',
+    subtitle: 'Insira seu e-mail e prossiga para o pagamento seguro. Sua chave de licença chega por e-mail instantaneamente.',
+    emailPlaceholder: 'Seu endereço de e-mail',
+    emailError: 'Insira um endereço de e-mail válido.',
+    genericError: 'Ocorreu um erro, tente novamente.',
+    redirecting: 'Redirecionando…',
+    buy: 'Comprar — €70/mês',
+    stripeNote: 'Pagamentos processados com segurança via Stripe. Cancele quando quiser.',
+    successTitle: 'Pagamento realizado! 🎉',
+    successDesc: 'Sua chave de licença foi enviada para seu e-mail. Siga a documentação para instalar ou entre em contato — faremos a instalação para você.',
+    successHome: 'Voltar ao início',
+    cancelTitle: 'Pagamento não concluído',
+    cancelDesc: 'O pagamento foi cancelado. Se teve problemas, entre em contato.',
+    cancelRetry: 'Tentar novamente',
+  },
+};
+
+const DICTS: Record<Lang, typeof tr> = { tr, en, 'pt-br': ptBr };
 
 interface LangContextValue {
   lang: Lang;
@@ -384,7 +566,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem('xp-site-lang') as Lang | null;
-      if (stored === 'tr' || stored === 'en') {
+      if (stored === 'tr' || stored === 'en' || stored === 'pt-br') {
         setLangState(stored);
       } else if (typeof navigator !== 'undefined' && !navigator.language.toLowerCase().startsWith('tr')) {
         setLangState('en');

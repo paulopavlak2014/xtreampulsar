@@ -4,9 +4,10 @@ import tr from './tr.json';
 import en from './en.json';
 import de from './de.json';
 import ar from './ar.json';
+import ptBr from './pt-br.json';
 
 const rawLang = localStorage.getItem('xp-lang');
-const savedLang = rawLang === 'en' ? 'en' : 'tr';
+const savedLang = rawLang === 'en' ? 'en' : rawLang === 'pt-br' ? 'pt-br' : 'tr';
 
 void i18n.use(initReactI18next).init({
   resources: {
@@ -14,6 +15,7 @@ void i18n.use(initReactI18next).init({
     en: { translation: en },
     de: { translation: de },
     ar: { translation: ar },
+    'pt-br': { translation: ptBr },
   },
   lng: savedLang,
   fallbackLng: 'tr',
@@ -34,4 +36,5 @@ export default i18n;
 export const LANGUAGES = [
   { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'pt-br', label: 'Português (BR)', flag: '🇧🇷' },
 ];

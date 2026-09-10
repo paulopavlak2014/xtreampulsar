@@ -30,7 +30,7 @@ export function Navbar() {
 
   const LangSwitch = ({ className }: { className?: string }) => (
     <div className={clsx('flex items-center rounded-full border border-border bg-surface p-0.5 text-xs font-semibold', className)}>
-      {(['tr', 'en'] as Lang[]).map((l) => (
+      {(['tr', 'en', 'pt-br'] as Lang[]).map((l) => (
         <button
           key={l}
           onClick={() => setLang(l)}
