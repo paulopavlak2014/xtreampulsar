@@ -7,7 +7,7 @@ set -euo pipefail
 # yutar; kurulum 6/9 adiminda hicbir hata vermeden sessizce sonlanir.
 # Ayrica bu kipte ${BASH_SOURCE[0]} tanimsizdir ve `set -u` yuzunden patlar.
 # Cozum: kendimizi gecici bir dosyaya indirip oradan yeniden calistirmak.
-INSTALLER_URL="${INSTALLER_URL:-https://raw.githubusercontent.com/dearbulut/xtreampulsar/main/apps/installer/install.sh}"
+INSTALLER_URL="${INSTALLER_URL:-https://raw.githubusercontent.com/paulopavlak2014/xtreampulsar/main/apps/installer/install.sh}"
 if [[ -z "${XP_REEXEC:-}" && ! -r "${BASH_SOURCE[0]:-}" ]]; then
   XP_SELF="$(mktemp /tmp/xp-install.XXXXXX.sh)"
   if command -v curl &>/dev/null; then
