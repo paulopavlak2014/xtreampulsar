@@ -18,7 +18,7 @@ void i18n.use(initReactI18next).init({
     'pt-br': { translation: ptBr },
   },
   lng: savedLang,
-  fallbackLng: 'tr',
+  fallbackLng: 'pt-br',
   interpolation: { escapeValue: false },
 });
 
@@ -29,7 +29,10 @@ function applyHtmlLang(lng: string) {
   }
 }
 applyHtmlLang(savedLang);
-i18n.on('languageChanged', applyHtmlLang);
+i18n.on('languageChanged', (lng) => {
+  applyHtmlLang(lng);
+  localStorage.setItem('xp-lang', lng);
+});
 
 export default i18n;
 
