@@ -6,8 +6,7 @@ import de from './de.json';
 import ar from './ar.json';
 import ptBr from './pt-br.json';
 
-const rawLang = localStorage.getItem('xp-lang');
-const savedLang = rawLang === 'tr' ? 'tr' : rawLang === 'en' ? 'en' : 'pt-br';
+const savedLang = 'pt-br';
 
 void i18n.use(initReactI18next).init({
   resources: {
