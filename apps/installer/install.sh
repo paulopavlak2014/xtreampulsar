@@ -18,7 +18,7 @@ if [[ -z "${XP_REEXEC:-}" && ! -r "${BASH_SOURCE[0]:-}" ]]; then
     echo "curl ya da wget gerekli: apt-get update && apt-get install -y curl" >&2
     exit 1
   fi
-  [[ -s "$XP_SELF" ]] || { echo "Kurulum betigi indirilemedi: $INSTALLER_URL" >&2; exit 1; }
+  [[ -s "$XP_SELF" ]] || { echo "script de instalação não pôde ser baixado: $INSTALLER_URL" >&2; exit 1; }
   export XP_REEXEC=1 XP_SELF
   exec bash "$XP_SELF" "$@"
 fi
@@ -48,7 +48,7 @@ log_step()    { echo -e "\n${BOLD}${CYAN}$*${RESET}"; }
 # ─── Spinner ─────────────────────────────────────────────────────────────────
 spinner() {
   local pid=$1
-  local msg="${2:-Lütfen bekleyin...}"
+  local msg="${2:-Aguarde...}"
   local frames=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
   local i=0
   while kill -0 "$pid" 2>/dev/null; do
@@ -74,7 +74,7 @@ run_with_spinner() {
   local pid=$!
   spinner "$pid" "$msg"
   if ! wait "$pid"; then
-    log_error "$msg — başarısız. Log: /tmp/xp_install.log"
+    log_error "$msg — falhou. Log: /tmp/xp_install.log"
     cat /tmp/xp_install.log >&2
     exit 1
   fi
@@ -86,7 +86,7 @@ SELFHOST_MODE=false
 DOMAIN=""
 EMAIL=""
 INSTALL_DIR="/opt/xtreampulsar"
-REPO_URL="https://github.com/dearbulut/xtreampulsar"
+REPO_URL="https://github.com/paulopavlak2014/xtreampulsar"
 LICENSE_SERVER="https://license.xtreampulsar.com"
 DEV_MODE=false
 
@@ -117,16 +117,16 @@ cat <<'EOF'
 /_/  \_\|_____|______|\_____|        |_|  |_|_|     \____/|______|_____/_/    \_\_|  \_\
 EOF
 echo -e "${RESET}"
-echo -e "${BOLD}XtreamPulsar Panel — Kurulum Sihirbazı v1.1${RESET}"
+echo -e "${BOLD}XtreamPulsar Panel — Assistente de Instalação v1.1${RESET}"
 echo -e "────────────────────────────────────────────────────────────────────"
 
 # ─── Pre-flight Checks ───────────────────────────────────────────────────────
-log_step "▶ Ön kontroller"
+log_step "▶ Pré-verificações"
 
 # Lisans opsiyonel: anahtar verilmezse acik-kaynak / self-host modunda kurulur (lisans yok).
 if [[ -z "$LICENSE_KEY" && "$DEV_MODE" = false ]]; then
   SELFHOST_MODE=true
-  log_info "Lisans anahtari verilmedi -> acik kaynak / self-host modu (lisans dogrulamasi yok)."
+  log_info "Chave de licença não fornecida -> modo código aberto / auto-hospedado (sem verificação de licença)."
 fi
 
 if [[ "$DEV_MODE" = true ]]; then
