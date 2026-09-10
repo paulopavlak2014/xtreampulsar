@@ -6,20 +6,6 @@ import de from './de.json';
 import ar from './ar.json';
 import ptBr from './pt-br.json';
 
-const savedLang = 'pt-br';
-
-void i18n.use(initReactI18next).init({
-  resources: {
-    tr: { translation: tr },
-    en: { translation: en },
-    de: { translation: de },
-    ar: { translation: ar },
-    'pt-br': { translation: ptBr },
-  },
-  lng: savedLang,
-  fallbackLng: 'pt-br',
-  interpolation: { escapeValue: false },
-});
 
 function applyHtmlLang(lng: string) {
   if (typeof document !== 'undefined') {
@@ -27,16 +13,36 @@ function applyHtmlLang(lng: string) {
     document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
   }
 }
-applyHtmlLang(savedLang);
+
+
+i18n.use(initReactI18next).init({
+  resources: {
+    tr: { translation: tr },
+    en: { translation: en },
+    de: { translation: de },
+    ar: { translation: ar },
+    pt: { translation: ptBr },
+  },
+  lng: 'pt',
+  fallbackLng: 'en',
+  interpolation: { escapeValue: false },
+});
+
+
+applyHtmlLang('pt');
+
+
 i18n.on('languageChanged', (lng) => {
   applyHtmlLang(lng);
   localStorage.setItem('xp-lang', lng);
 });
 
+
 export default i18n;
+
 
 export const LANGUAGES = [
   { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
   { code: 'en', label: 'English', flag: '🇬🇧' },
-  { code: 'pt-br', label: 'Português (BR)', flag: '🇧🇷' },
+  { code: 'pt', label: 'Português (BR)', flag: '🇧🇷' },
 ];
