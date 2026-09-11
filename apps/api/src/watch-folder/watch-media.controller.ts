@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Req, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, NotFoundException, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import * as fs from 'fs';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 const MIME: Record<string, string> = {
   mp4: 'video/mp4', mkv: 'video/x-matroska', webm: 'video/webm', avi: 'video/x-msvideo',
@@ -10,6 +11,7 @@ const MIME: Record<string, string> = {
 
 /** Watch-folder dosyasını Range destegiyle sunar (id = WatchImport cuid, tahmin edilemez). */
 @Controller('watch-media')
+@UseGuards(JwtAuthGuard)
 export class WatchMediaController {
   constructor(private readonly prisma: PrismaService) {}
 

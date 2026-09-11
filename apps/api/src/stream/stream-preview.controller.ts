@@ -1,5 +1,6 @@
 import * as http from 'http';
 import * as https from 'https';
+import * as dns from 'dns';
 import { Controller, Get, Inject, Param, Query, Req, Res, HttpStatus } from '@nestjs/common';
 import type { IncomingMessage } from 'http';
 import type { Request, Response } from 'express';
@@ -17,6 +18,19 @@ interface PreviewTarget {
 
 /** Upstream yonlendirmelerinde izin verilen maksimum adim. */
 const MAX_REDIRECTS = 3;
+
+/** SSRF koruması — özel ve dahili adresleri engelle. */
+const PRIVATE_IP_PATTERNS = /^(127\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.|169\.254\.|0\.|localhost|::1|\[::1\]|metadata\.google\.internal)/i;
+
+async function isPrivateHost(hostname: string): Promise<boolean> {
+  if (PRIVATE_IP_PATTERNS.test(hostname)) return true;
+  try {
+    const addresses = await dns.promises.resolve4(hostname);
+    return addresses.some((addr) => PRIVATE_IP_PATTERNS.test(addr));
+  } catch {
+    return false;
+  }
+}
 
 @Controller('streams/preview')
 export class StreamPreviewController {
@@ -194,7 +208,11 @@ export class StreamPreviewController {
     let segmentUrl: string;
     try {
       segmentUrl = decodeURIComponent(encodedUrl);
-      new URL(segmentUrl); // throws if invalid
+      const parsed = new URL(segmentUrl); // throws if invalid
+      if (await isPrivateHost(parsed.hostname)) {
+        res.status(HttpStatus.FORBIDDEN).send('Access to private/internal URLs is forbidden');
+        return;
+      }
     } catch {
       res.status(HttpStatus.BAD_REQUEST).send('Invalid segment URL');
       return;

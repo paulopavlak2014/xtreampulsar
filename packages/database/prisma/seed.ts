@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +8,8 @@ async function main() {
   console.log('🌱 Seed başlıyor...\n');
 
   // ── Admin kullanıcısı ────────────────────────────────────────────────────
-  const passwordHash = await bcrypt.hash('Admin123!', 10);
+  const adminPassword = crypto.randomBytes(16).toString('base64url');
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
 
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
@@ -22,6 +24,7 @@ async function main() {
     },
   });
   console.log(`✓ Admin kullanıcısı  : ${admin.username} (id: ${admin.id})`);
+  console.log(`  ⚠️  Geçici şifre: ${adminPassword}  ← Bunu kaydedin!`);
 
   // ── Paketler ─────────────────────────────────────────────────────────────
   const packages = [
@@ -146,7 +149,7 @@ async function main() {
   console.log('─────────────────────────────────────────');
   console.log('  Admin giriş bilgileri:');
   console.log('    Kullanıcı adı : admin');
-  console.log('    Şifre         : Admin123!');
+  console.log(`    Şifre         : ${adminPassword}`);
   console.log('─────────────────────────────────────────');
 }
 

@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, Headers } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ControlAuthService } from './control-auth.service';
 import { ControlJwtGuard } from './control-jwt.guard';
 
@@ -20,6 +21,7 @@ export class ControlAuthController {
 
   @Post('setup')
   @HttpCode(HttpStatus.CREATED)
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
   setup(
     @Body() dto: { username: string; email: string; password: string },
     @Headers('x-setup-key') setupKey?: string,
@@ -29,6 +31,7 @@ export class ControlAuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   login(@Body() dto: { username: string; password: string }) {
     return this.authService.login(dto.username, dto.password);
   }

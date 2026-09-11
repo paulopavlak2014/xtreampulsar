@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Req, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, NotFoundException, UseGuards } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import * as fs from 'fs';
 import { DownloadService } from './download.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 const MIME: Record<string, string> = {
   mp4: 'video/mp4', mkv: 'video/x-matroska', webm: 'video/webm', avi: 'video/x-msvideo',
@@ -11,10 +12,10 @@ const MIME: Record<string, string> = {
 
 /**
  * Tamamlanmis indirmeyi Range destegi ile sunar (VOD oynatma/seek icin).
- * Public: xtream movie proxy'sinin (server-taraf) erisebilmesi icin guard yok;
- * id bir cuid (tahmin edilemez). Ileride imzali token eklenebilir.
+ * Guard ile korumalı — JWT token gerekli.
  */
 @Controller('media')
+@UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(
     private readonly downloadService: DownloadService,

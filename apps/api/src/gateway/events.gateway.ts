@@ -4,7 +4,28 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { Server } from 'socket.io';
 import { AnalyticsService } from '../analytics/analytics.service';
 
-@WebSocketGateway({ cors: { origin: '*' }, namespace: '/ws' })
+const WS_ALLOWED_ORIGINS = [
+  'https://panel.xtreampulsar.com',
+  'https://xtreampulsar.com',
+  'https://www.xtreampulsar.com',
+  'https://control.xtreampulsar.com',
+  'http://169.58.12.153',
+  ...(process.env.CORS_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
+];
+
+@WebSocketGateway({
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin || WS_ALLOWED_ORIGINS.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+  },
+  namespace: '/ws',
+})
 export class EventsGateway {
   @WebSocketServer() server!: Server;
   private readonly logger = new Logger(EventsGateway.name);
