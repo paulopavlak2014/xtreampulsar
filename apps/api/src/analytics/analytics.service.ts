@@ -332,7 +332,7 @@ export class AnalyticsService {
     try {
       const servers = await this.prisma.server.findMany({
         include: {
-          _count: { select: { connections: { where: { endedAt: null } } } },
+          _count: { select: { connections: { where: activeConnectionWhere() } } },
         },
         orderBy: { name: 'asc' },
       });

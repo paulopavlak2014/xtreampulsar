@@ -29,6 +29,7 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser, JwtUser } from '../common/decorators/current-user.decorator';
 import { PaginationDto } from '../common/dto/pagination.dto';
+import { activeConnectionWhere } from '../user/user.repository';
 
 @Controller('resellers')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -73,7 +74,7 @@ export class ResellerController {
       select: {
           id: true, username: true, status: true,
           expiresAt: true, maxConnections: true, createdAt: true,
-          _count: { select: { connections: { where: { endedAt: null } } } },
+          _count: { select: { connections: { where: activeConnectionWhere() } } },
         },
       orderBy: { expiresAt: 'asc' },
     });

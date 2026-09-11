@@ -7,6 +7,7 @@ import { CreateStreamDto } from './dto/create-stream.dto';
 import { UpdateStreamDto } from './dto/update-stream.dto';
 import { QueryStreamDto } from './dto/query-stream.dto';
 import { BulkStreamFilterDto, BulkUpdateStreamsDto } from './dto/bulk-update-stream.dto';
+import { activeConnectionWhere } from '../user/user.repository';
 
 @Injectable()
 export class StreamService {
@@ -309,7 +310,7 @@ export class StreamService {
           include: {
             category: true,
             server: true,
-            _count: { select: { connections: true } },
+            _count: { select: { connections: { where: activeConnectionWhere() } } },
           },
           orderBy: { sortOrder: 'asc' },
           skip: (page - 1) * limit,
