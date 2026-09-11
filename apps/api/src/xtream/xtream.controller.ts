@@ -694,7 +694,7 @@ export class XtreamController {
             if (onEnd) bytes += BigInt(chunk.length);
             if (onHeartbeat) {
               const t = Date.now();
-              if (t - lastHb > 30000) { lastHb = t; onHeartbeat(); }
+              if (t - lastHb > 15000) { lastHb = t; onHeartbeat(); }
             }
           });
         }

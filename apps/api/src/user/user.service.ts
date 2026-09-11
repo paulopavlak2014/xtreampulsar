@@ -13,7 +13,7 @@ import * as crypto from 'crypto';
 import * as qrcode from 'qrcode';
 import { Prisma } from '@xtreampulsar/database';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRepository, activeConnectionWhere } from './user.repository';
+import { UserRepository, activeConnectionWhere, STALE_CONNECTION_MS } from './user.repository';
 import { UserActivityService } from './user-activity.service';
 import { WebhookService } from '../webhook/webhook.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -120,7 +120,19 @@ export class UserService {
     // Ham eszamanli yayin sayisi (current stream haric). closeSupersededConnections
     // cagiran yolda ONCE calisir → ayni cihazin eski yayini kapanmis olur, bu sayim
     // dogru kalir. NAT+ayni-UA iki cihaz artik BYPASS edemez (cihaz ayirt edilmez).
-    const activeStreams = await this.userRepo.countActiveConnections(userId, currentStreamId);
+    // TRANSACTION: sayim ile baglanti olusturma arasindaki yarisi onlemek icin
+    // ayni transaction icinde say + olustur yapilir.
+    const activeStreams = await this.prisma.$transaction(async (tx) => {
+      const count = await tx.connection.count({
+        where: {
+          userId,
+          endedAt: null,
+          updatedAt: { gte: new Date(Date.now() - STALE_CONNECTION_MS) },
+          ...(currentStreamId ? { streamId: { not: currentStreamId } } : {}),
+        },
+      });
+      return count;
+    });
     if (activeStreams >= user.maxConnections) {
       this.logConnectionLimitAttempt(userId, ip, _userAgent);
       return deny(`Max connections reached (${user.maxConnections})`, 'MAX_CONN');

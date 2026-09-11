@@ -5,9 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 // HLS'te istemci "ayrıldım" demez; aktiflik son aktivite (Connection.updatedAt) ile
 // ölçülür. updatedAt her segment/manifest isteğinde (findOrCreateConnection reuse +
 // serveHlsSegment heartbeat) tazelenir. Bu süreden eski + endedAt=null bağlantılar
-// "hayalet" sayılır ve kapatılır. 90sn: canlı izleyen ~10-30sn'de tazeler, ağ
-// dalgalanmasında yanlış düşme yok, hayaleti hızlı temizler.
-export const STALE_CONNECTION_MS = 30_000;
+// "hayalet" sayılır ve kapatılır. 60sn: canlı izleyen ~4-10sn'de tazeler, ağ
+// dalgalanmasında yanlış düşme yok, hayaleti temizler.
+export const STALE_CONNECTION_MS = 60_000;
 
 // "Aktif bağlantı" TEK tanımı — her yerde (enforcement + tüm UI/dashboard sayaçları)
 // bunu kullan; tanım bir daha ayrışmasın. Aktif = kapanmamış (endedAt IS NULL) VE
