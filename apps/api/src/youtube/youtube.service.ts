@@ -87,17 +87,11 @@ export class YouTubeService {
     }
 
     // Adım 2: Oynatılabilir URL'i al (-g = --get-url)
-    // IMPORTANTE: Não usar bestvideo+bestaudio com -g (retorna 2 URLs separadas).
-    // Usar formatos com vídeo+áudio juntos.
+    // Sem -f: yt-dlp escolhe o melhor formato com áudio automaticamente.
     const urlArgs = [
       '--no-warnings', '--no-playlist',
       '-g',
     ];
-    if (isLive) {
-      urlArgs.push('-f', 'best[ext=mp4]/best');
-    } else {
-      urlArgs.push('-f', 'best[ext=mp4]/best[ext=webm]/best');
-    }
     const cookies2 = await this.cookiesFile();
     if (cookies2) urlArgs.push('--cookies', cookies2);
     urlArgs.push(url);
