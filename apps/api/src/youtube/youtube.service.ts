@@ -55,38 +55,66 @@ export class YouTubeService {
     }
 
     const cookies = await this.cookiesFile();
-    // Her alan ayri --print -> her biri kendi satirinda (embedded \n'e guvenme).
-    const args = [
-      // NOT: yt-dlp EJS yalnizca deno/bun destekler (node degil). Su an JS runtime
-      // yok; cogu video/canli icin calisir, bazi yuksek formatlar eksik olabilir.
-      // Gelecekte gerekirse imaja deno/bun (musl) eklenip buraya --js-runtimes verilir.
+
+    // Adım 1: Video bilgilerini al (title, is_live, thumbnail)
+    const infoArgs = [
       '--no-warnings', '--no-playlist',
-      '-f', 'b',
       '--print', '%(title)s',
       '--print', '%(is_live)s',
       '--print', '%(thumbnail)s',
-      '--print', 'urls',
+      '--skip-download',
     ];
-    if (cookies) args.push('--cookies', cookies);
-    args.push(url);
+    if (cookies) infoArgs.push('--cookies', cookies);
+    infoArgs.push(url);
+
+    let title = 'YouTube';
+    let isLive = false;
+    let thumbnail = '';
 
     try {
-      const { stdout } = await execFileP('yt-dlp', args, { timeout: 60_000, maxBuffer: 4 * 1024 * 1024 });
-      const lines = stdout.trim().split('\n').map((l) => l.trim()).filter(Boolean);
-      // urls son satir(lar)da; ilk 3 alan sabit.
-      const title = lines[0] || 'YouTube';
-      const isLive = (lines[1] || '').toLowerCase() === 'true';
-      const thumbnail = /^https?:\/\//i.test(lines[2] || '') ? lines[2] : '';
-      const mediaUrl = [...lines].reverse().find((l) => /^https?:\/\//i.test(l) && l !== thumbnail) || '';
-      if (!mediaUrl) throw new Error('Akış URL’i alınamadı (format bulunamadı).');
+      const { stdout: infoOut } = await execFileP('yt-dlp', infoArgs, { timeout: 60_000, maxBuffer: 4 * 1024 * 1024 });
+      const infoLines = infoOut.trim().split('\n').map((l) => l.trim()).filter(Boolean);
+      title = infoLines[0] || 'YouTube';
+      isLive = (infoLines[1] || '').toLowerCase() === 'true';
+      thumbnail = /^https?:\/\//i.test(infoLines[2] || '') ? infoLines[2] : '';
+    } catch (err) {
+      const e = err as { stderr?: string; message?: string };
+      const detail = (e.stderr || e.message || '').split('\n').filter(Boolean).slice(-1)[0] || 'bilinmeyen hata';
+      this.logger.error(`yt-dlp info failed (v${version}): ${e.stderr || e.message}`);
+      throw new BadRequestException(`YouTube çözümlenemedi: ${detail.slice(0, 240)}`);
+    } finally {
+      if (cookies) await fs.unlink(cookies).catch(() => {});
+    }
+
+    // Adım 2: Oynatılabilir URL'i al (-g = --get-url)
+    const urlArgs = [
+      '--no-warnings', '--no-playlist',
+      '-g',
+    ];
+    if (isLive) {
+      // Canlı yayınlar için en iyi formatı seç
+      urlArgs.push('-f', 'best[protocol!=m3u8]');
+    } else {
+      urlArgs.push('-f', 'best');
+    }
+    const cookies2 = await this.cookiesFile();
+    if (cookies2) urlArgs.push('--cookies', cookies2);
+    urlArgs.push(url);
+
+    try {
+      const { stdout: urlOut } = await execFileP('yt-dlp', urlArgs, { timeout: 60_000, maxBuffer: 4 * 1024 * 1024 });
+      const mediaUrl = urlOut.trim().split('\n')[0]?.trim() || '';
+      if (!mediaUrl || !/^https?:\/\//i.test(mediaUrl)) {
+        throw new Error('Akış URL\'i alınamadı (format bulunamadı).');
+      }
       return { title, url: mediaUrl, isLive, thumbnail };
     } catch (err) {
       const e = err as { stderr?: string; message?: string };
       const detail = (e.stderr || e.message || '').split('\n').filter(Boolean).slice(-1)[0] || 'bilinmeyen hata';
-      this.logger.error(`yt-dlp resolve failed (v${version}): ${e.stderr || e.message}`);
+      this.logger.error(`yt-dlp url failed (v${version}): ${e.stderr || e.message}`);
       throw new BadRequestException(`YouTube çözümlenemedi: ${detail.slice(0, 240)}`);
     } finally {
-      if (cookies) await fs.unlink(cookies).catch(() => {});
+      if (cookies2) await fs.unlink(cookies2).catch(() => {});
     }
   }
 
