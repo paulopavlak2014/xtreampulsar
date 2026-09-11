@@ -32,6 +32,7 @@ async function bootstrap() {
         'https://xtreampulsar.com',
         'https://www.xtreampulsar.com',
         'https://control.xtreampulsar.com',
+        'http://169.58.12.153',
       ];
       const envOrigins = (process.env.CORS_ORIGINS ?? '')
         .split(',')
