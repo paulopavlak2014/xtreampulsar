@@ -35,6 +35,7 @@ import { GuardConfigService } from '../server/guard-config.service';
 import { REDIS_CLIENT } from '../redis/redis.module';
 import { EventsGateway } from '../gateway/events.gateway';
 import { WebhookService } from '../webhook/webhook.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 interface PlayerApiQuery {
   username?: string;
@@ -77,6 +78,7 @@ export class XtreamController {
     private readonly restreamDetector: RestreamDetectorService,
     private readonly lbService: LoadBalancerService,
     private readonly guardConfig: GuardConfigService,
+    private readonly analyticsService: AnalyticsService,
     @Optional() private readonly prefetchService: StreamPrefetchService,
     @Optional() private readonly workerService: StreamWorkerService,
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
@@ -599,7 +601,7 @@ export class XtreamController {
     res: Response,
     opts?: {
       onEnd?: (bytes: bigint, durationSeconds: number) => void;
-      onHeartbeat?: () => void;
+      onHeartbeat?: (bytes: number) => void;
       rewrite?: { proxyPrefix: string; upstreamOrigin: string; playlistUrl: string };
       streamDownUrl?: string;
       isFallback?: boolean;
@@ -688,13 +690,19 @@ export class XtreamController {
         }
 
         // Segment/binary: ham pipe (performans). onEnd → bayt sayacı; onHeartbeat →
-        // ≥30sn'de bir bağlantıyı canlı tut (uzun VOD/series tek proxy'de stale-cron'a karşı).
+        // ≥15sn'de bir bağlantıyı canlı tut + bytes'ı DB'ye yaz (tráfego gösterimi).
         if (onEnd || onHeartbeat) {
+          let lastFlushedBytes = 0;
           proxyRes.on('data', (chunk: Buffer) => {
             if (onEnd) bytes += BigInt(chunk.length);
             if (onHeartbeat) {
               const t = Date.now();
-              if (t - lastHb > 15000) { lastHb = t; onHeartbeat(); }
+              if (t - lastHb > 15000) {
+                const delta = Number(bytes) - lastFlushedBytes;
+                lastFlushedBytes = Number(bytes);
+                lastHb = t;
+                onHeartbeat(delta);
+              }
             }
           });
         }
@@ -761,9 +769,10 @@ export class XtreamController {
     const fbStreamDown = (await this.getFallbackVideos()).streamDown ?? undefined;
     this.proxyToUpstream(streamUrl, req, res, {
       streamDownUrl: fbStreamDown,
-      onHeartbeat: () => { if (connId) void this.userService.touchConnection(connId); },
+      onHeartbeat: (bytes) => { if (connId) { void this.userService.touchConnection(connId); void this.prisma.connection.update({ where: { id: connId }, data: { bytesOut: { increment: BigInt(bytes) } } }).catch(() => {}); } },
       onEnd: (bytes, duration) => {
         if (connId) void this.userService.closeConnection(connId);
+        void this.analyticsService.trackBandwidth(ctx.streamId, Number(bytes), ctx.userId);
         void this.userActivityService.logActivity({
           userId: ctx.userId,
           action: 'STREAM_END',
@@ -964,6 +973,9 @@ export class XtreamController {
         streamDownUrl: fbStreamDown,
         rewrite: { proxyPrefix, upstreamOrigin, playlistUrl: streamRecord.primaryUrl },
         upstreamHeaders,
+        onEnd: (bytes) => {
+          void this.analyticsService.trackBandwidth(streamRecord.id, Number(bytes), user.id);
+        },
       });
       return;
     }

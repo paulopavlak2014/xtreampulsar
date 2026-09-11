@@ -11,9 +11,10 @@ import { WebhookModule } from '../webhook/webhook.module';
 import { SettingsModule } from '../settings/settings.module';
 import { SubtitleModule } from '../subtitle/subtitle.module';
 import { CatchupModule } from '../catchup/catchup.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
-  imports: [CatchupModule, UserModule, StreamModule, GatewayModule, SecurityModule, ServerModule, WebhookModule, SettingsModule, SubtitleModule],
+  imports: [CatchupModule, UserModule, StreamModule, GatewayModule, SecurityModule, ServerModule, WebhookModule, SettingsModule, SubtitleModule, AnalyticsModule],
   controllers: [XtreamController, XtreamAdminController],
   providers: [XtreamService],
 })
