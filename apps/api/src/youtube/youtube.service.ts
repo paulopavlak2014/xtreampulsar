@@ -92,10 +92,9 @@ export class YouTubeService {
       '-g',
     ];
     if (isLive) {
-      // Canlı yayınlar için en iyi formatı seç
-      urlArgs.push('-f', 'best[protocol!=m3u8]');
+      urlArgs.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best');
     } else {
-      urlArgs.push('-f', 'best');
+      urlArgs.push('-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/bestvideo+bestaudio/best');
     }
     const cookies2 = await this.cookiesFile();
     if (cookies2) urlArgs.push('--cookies', cookies2);
