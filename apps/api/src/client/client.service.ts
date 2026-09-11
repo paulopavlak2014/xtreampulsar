@@ -49,7 +49,7 @@ export class ClientService {
         id: true,
         ip: true,
         startedAt: true,
-        stream: { select: { id: true, name: true } },
+        stream: { select: { id: true, name: true, qualityScore: true, resolution: true, videoBitrate: true } },
       },
       orderBy: { startedAt: 'desc' },
     });

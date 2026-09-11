@@ -97,6 +97,29 @@ export function LiveConnectionsPage() {
       ),
     },
     {
+      key: 'qualityScore',
+      header: t('liveConnections.colQuality', 'Qualidade'),
+      render: (r) => (
+        <div className="text-xs">
+          {r.resolution && <div className="text-slate-300">{r.resolution}</div>}
+          {r.qualityScore && (
+            <span className={cn(
+              'text-[10px] px-1.5 py-0.5 rounded font-medium',
+              r.qualityScore === 'A' && 'bg-emerald-500/15 text-emerald-400',
+              r.qualityScore === 'B' && 'bg-blue-500/15 text-blue-400',
+              r.qualityScore === 'C' && 'bg-yellow-500/15 text-yellow-400',
+              r.qualityScore === 'D' && 'bg-orange-500/15 text-orange-400',
+              r.qualityScore === 'F' && 'bg-red-500/15 text-red-400',
+            )}>
+              {r.qualityScore}
+            </span>
+          )}
+          {r.videoBitrate && <div className="text-muted">{r.videoBitrate} kbps</div>}
+          {!r.resolution && !r.qualityScore && <span className="text-muted">—</span>}
+        </div>
+      ),
+    },
+    {
       key: 'ip',
       header: 'IP',
       render: (r) => (

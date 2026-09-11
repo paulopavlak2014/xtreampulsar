@@ -428,7 +428,7 @@ export class ResellerService {
         ip: true,
         startedAt: true,
         user: { select: { id: true, username: true } },
-        stream: { select: { id: true, name: true } },
+        stream: { select: { id: true, name: true, qualityScore: true, resolution: true, videoBitrate: true } },
       },
       orderBy: { startedAt: 'desc' },
     });

@@ -1623,6 +1623,7 @@
   "liveConnections": {
     "colUser": "User",
     "colTraffic": "Traffic",
+    "colQuality": "Quality",
     "colRate": "Avg rate",
     "avgRateHint": "Average output rate (total / duration)",
     "statActive": "Active connections",

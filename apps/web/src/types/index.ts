@@ -192,6 +192,11 @@ export interface Connection {
   username: string;
   streamName: string;
   streamType: 'LIVE' | 'VOD' | 'SERIES';
+  qualityScore?: string | null;
+  resolution?: string | null;
+  videoBitrate?: number | null;
+  videoCodec?: string | null;
+  fps?: number | null;
   ip: string;
   userAgent?: string;
   startedAt: string;
