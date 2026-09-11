@@ -649,6 +649,8 @@
     "type": "Type",
     "streamCount": "Streams",
     "bouquet": "Bouquet",
+    "bouquets": "Bouquets",
+    "selectAtLeastOneBouquet": "Select at least one bouquet",
     "live": "Live",
     "vod": "VOD",
     "series": "Series",

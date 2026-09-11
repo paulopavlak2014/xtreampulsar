@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsIn,
   IsInt,
@@ -15,8 +16,9 @@ export class CreateCategoryDto {
   @IsIn(['LIVE', 'VOD', 'SERIES'])
   type!: 'LIVE' | 'VOD' | 'SERIES';
 
-  @IsString()
-  bouquetId!: string;
+  @IsArray()
+  @IsString({ each: true })
+  bouquetIds!: string[];
 
   @IsOptional()
   @Type(() => Number)

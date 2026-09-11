@@ -69,8 +69,8 @@ async function main() {
       const created = await prisma.category.create({
         data: {
           ...cat,
-          bouquetId: defaultBouquet.id,
           isActive: true,
+          categoryBouquets: { create: { bouquetId: defaultBouquet.id } },
         },
       });
       console.log(`✓ Kategori           : ${created.name} (${created.type}, externalId: ${created.externalId})`);
@@ -87,8 +87,8 @@ async function main() {
       externalId: 99999,
       name: 'Test',
       type: 'LIVE',
-      bouquetId: defaultBouquet.id,
       isActive: true,
+      categoryBouquets: { create: { bouquetId: defaultBouquet.id } },
     },
   });
   console.log(`✓ Test kategorisi    : ${testCategory.name} (${testCategory.type})`);

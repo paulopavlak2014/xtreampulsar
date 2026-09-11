@@ -9,11 +9,16 @@ export class CategoryService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly categoryInclude = {
+    categoryBouquets: { include: { bouquet: true } },
+    _count: { select: { streams: true } },
+  };
+
   async findAll(type?: 'LIVE' | 'VOD' | 'SERIES') {
     try {
       return await this.prisma.category.findMany({
         where: { ...(type ? { type } : {}) },
-        include: { bouquet: true, _count: { select: { streams: true } } },
+        include: this.categoryInclude,
         orderBy: [{ type: 'asc' }, { sortOrder: 'asc' }],
       });
     } catch (err) {
@@ -25,19 +30,43 @@ export class CategoryService {
   async findById(id: string) {
     const cat = await this.prisma.category.findUnique({
       where: { id },
-      include: { bouquet: true, _count: { select: { streams: true } } },
+      include: this.categoryInclude,
     });
     if (!cat) throw new NotFoundException(`Category ${id} not found`);
     return cat;
   }
 
-  create(dto: CreateCategoryDto) {
-    return this.prisma.category.create({ data: dto });
+  async create(dto: CreateCategoryDto) {
+    const { bouquetIds, ...data } = dto;
+    return this.prisma.category.create({
+      data: {
+        ...data,
+        categoryBouquets: {
+          create: bouquetIds.map((bouquetId) => ({ bouquetId })),
+        },
+      },
+      include: this.categoryInclude,
+    });
   }
 
   async update(id: string, dto: UpdateCategoryDto) {
     await this.findById(id);
-    return this.prisma.category.update({ where: { id }, data: dto });
+    const { bouquetIds, ...data } = dto;
+
+    if (bouquetIds !== undefined) {
+      await this.prisma.categoryBouquet.deleteMany({ where: { categoryId: id } });
+      if (bouquetIds.length > 0) {
+        await this.prisma.categoryBouquet.createMany({
+          data: bouquetIds.map((bouquetId) => ({ categoryId: id, bouquetId })),
+        });
+      }
+    }
+
+    return this.prisma.category.update({
+      where: { id },
+      data,
+      include: this.categoryInclude,
+    });
   }
 
   async remove(id: string): Promise<void> {

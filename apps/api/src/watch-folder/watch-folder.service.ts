@@ -167,7 +167,7 @@ export class WatchFolderService {
   private async ensureCategory(name: string, type: 'VOD' | 'SERIES', bouquetId: string): Promise<string> {
     const found = await this.prisma.category.findFirst({ where: { name, type }, select: { id: true } });
     if (found) return found.id;
-    const created = await this.prisma.category.create({ data: { name, type, bouquetId }, select: { id: true } });
+    const created = await this.prisma.category.create({ data: { name, type, categoryBouquets: { create: { bouquetId } } }, select: { id: true } });
     return created.id;
   }
 

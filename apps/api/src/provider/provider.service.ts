@@ -299,7 +299,7 @@ export class ProviderService {
       const found = await this.prisma.category.findFirst({ where: { name, type }, select: { id: true } });
       const cid = found
         ? found.id
-        : (await this.prisma.category.create({ data: { name, type, bouquetId: bouquetId as string }, select: { id: true } })).id;
+        : (await this.prisma.category.create({ data: { name, type, categoryBouquets: { create: { bouquetId: bouquetId as string } } }, select: { id: true } })).id;
       catCache.set(key, cid);
       return cid;
     };

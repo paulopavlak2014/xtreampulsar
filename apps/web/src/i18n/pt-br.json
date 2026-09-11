@@ -649,6 +649,8 @@
     "type": "Tipo",
     "streamCount": "Transmissões",
     "bouquet": "Bouquet",
+    "bouquets": "Bouquets",
+    "selectAtLeastOneBouquet": "Selecione pelo menos um bouquet",
     "live": "Ao Vivo",
     "vod": "VOD",
     "series": "Séries",

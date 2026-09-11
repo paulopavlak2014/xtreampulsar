@@ -52,7 +52,7 @@ export class StreamService {
         ...(hidden.length ? { categoryId: { notIn: hidden } } : {}),
         // Entitlement: kategori-bazlı VEYA yayın-bazlı (BouquetStream) bouquet bağı.
         OR: [
-          { category: { bouquetId: { in: bouquetIds } } },
+          { category: { categoryBouquets: { some: { bouquetId: { in: bouquetIds } } } } },
           { bouquetStreams: { some: { bouquetId: { in: bouquetIds } } } },
         ],
       },
@@ -71,7 +71,7 @@ export class StreamService {
           category: { type: 'LIVE' },
           ...(hidden.length ? { categoryId: { notIn: hidden } } : {}),
           OR: [
-            { category: { bouquetId: { in: bouquetIds } } },
+            { category: { categoryBouquets: { some: { bouquetId: { in: bouquetIds } } } } },
             { bouquetStreams: { some: { bouquetId: { in: bouquetIds } } } },
           ],
         },
@@ -94,7 +94,7 @@ export class StreamService {
           category: { type: 'VOD' },
           ...(hidden.length ? { categoryId: { notIn: hidden } } : {}),
           OR: [
-            { category: { bouquetId: { in: bouquetIds } } },
+            { category: { categoryBouquets: { some: { bouquetId: { in: bouquetIds } } } } },
             { bouquetStreams: { some: { bouquetId: { in: bouquetIds } } } },
           ],
         },
@@ -117,7 +117,7 @@ export class StreamService {
           category: { type: 'SERIES' },
           ...(hidden.length ? { categoryId: { notIn: hidden } } : {}),
           OR: [
-            { category: { bouquetId: { in: bouquetIds } } },
+            { category: { categoryBouquets: { some: { bouquetId: { in: bouquetIds } } } } },
             { bouquetStreams: { some: { bouquetId: { in: bouquetIds } } } },
           ],
         },
@@ -141,7 +141,7 @@ export class StreamService {
         type,
         ...(hidden.length ? { id: { notIn: hidden } } : {}),
         OR: [
-          { bouquetId: { in: bouquetIds } },
+          { categoryBouquets: { some: { bouquetId: { in: bouquetIds } } } },
           { streams: { some: { bouquetStreams: { some: { bouquetId: { in: bouquetIds } } } } } },
         ],
       },

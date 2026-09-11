@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, type Category } from '@/hooks/useCategories';
 import { useBouquets } from '@/hooks/useBouquets';
+import { CountedBouquetSelector } from '@/components/ui/CountedBouquetSelector';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
@@ -28,8 +29,8 @@ const TYPE_LABEL_KEY: Record<string, string> = {
   SERIES: 'categories.series',
 };
 
-interface FormState { name: string; type: 'LIVE' | 'VOD' | 'SERIES'; bouquetId: string }
-const FORM_DEFAULT: FormState = { name: '', type: 'LIVE', bouquetId: '' };
+interface FormState { name: string; type: 'LIVE' | 'VOD' | 'SERIES'; bouquetIds: string[] }
+const FORM_DEFAULT: FormState = { name: '', type: 'LIVE', bouquetIds: [] };
 
 export function CategoriesPage() {
   const { t } = useTranslation();
@@ -68,18 +69,23 @@ export function CategoriesPage() {
     else toast.success(t('categories.bulkDeleteSuccess'));
   };
 
-  const f = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm((p) => ({ ...p, [k]: e.target.value as FormState[typeof k] }));
-
   const openAdd = () => { setForm(FORM_DEFAULT); setEditTarget(null); setShowModal(true); };
   const openEdit = (c: Category) => {
-    setForm({ name: c.name, type: c.type, bouquetId: c.bouquetId });
+    setForm({
+      name: c.name,
+      type: c.type,
+      bouquetIds: c.categoryBouquets.map((cb) => cb.bouquetId),
+    });
     setEditTarget(c.id);
     setShowModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.bouquetIds.length) {
+      toast.error(t('categories.selectAtLeastOneBouquet'));
+      return;
+    }
     if (editTarget) {
       await updateCat.mutateAsync({ id: editTarget, data: form });
     } else {
@@ -128,7 +134,11 @@ export function CategoriesPage() {
           </div>
           <div>
             <div className="font-medium text-slate-200">{row.name}</div>
-            {row.bouquet && <div className="text-xs text-muted">{row.bouquet.name}</div>}
+            {row.categoryBouquets.length > 0 && (
+              <div className="text-xs text-muted">
+                {row.categoryBouquets.map((cb) => cb.bouquet.name).join(', ')}
+              </div>
+            )}
           </div>
         </div>
       ),
@@ -196,28 +206,27 @@ export function CategoriesPage() {
 
       <DataTable columns={columns} data={categories} isLoading={isLoading} emptyMessage={t('categories.empty')} />
 
-      <Modal open={showModal} onClose={() => setShowModal(false)} title={editTarget ? t('common.edit') : t('categories.addCategory')} size="sm">
+      <Modal open={showModal} onClose={() => setShowModal(false)} title={editTarget ? t('common.edit') : t('categories.addCategory')} size="md">
         <form onSubmit={(e) => { void handleSubmit(e); }} className="space-y-4 p-6">
           <div>
             <label className="label">{t('common.name')}</label>
-            <input required className="input" value={form.name} onChange={f('name')} placeholder={t('categories.namePlaceholder')} />
+            <input required className="input" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder={t('categories.namePlaceholder')} />
           </div>
           <div>
             <label className="label">{t('categories.type')}</label>
-            <select className="input" value={form.type} onChange={f('type')}>
+            <select className="input" value={form.type} onChange={(e) => setForm((p) => ({ ...p, type: e.target.value as FormState['type'] }))}>
               <option value="LIVE">{t('categories.live')}</option>
               <option value="VOD">{t('categories.vod')}</option>
               <option value="SERIES">{t('categories.series')}</option>
             </select>
           </div>
           <div>
-            <label className="label">{t('categories.bouquet')}</label>
-            <select required className="input" value={form.bouquetId} onChange={f('bouquetId')}>
-              <option value="">{t('categories.selectPlaceholder')}</option>
-              {bouquets.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
+            <label className="label">{t('categories.bouquets')}</label>
+            <CountedBouquetSelector
+              value={form.bouquetIds}
+              onChange={(ids) => setForm((p) => ({ ...p, bouquetIds: ids }))}
+              maxHeight={240}
+            />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" className="btn btn-ghost" onClick={() => setShowModal(false)}>{t('common.cancel')}</button>

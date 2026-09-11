@@ -172,7 +172,7 @@ export class MigrationService implements OnModuleInit {
       if (!cat) {
         const bouquetId = dto.defaultBouquetId ?? await this.getOrCreateDefaultBouquet();
         cat = await this.prisma.category.create({
-          data: { name, type, bouquetId },
+          data: { name, type, categoryBouquets: { create: { bouquetId } } },
           select: { id: true },
         });
       }
@@ -414,7 +414,7 @@ export class MigrationService implements OnModuleInit {
         map.set(cat.category_id, existing.id);
       } else {
         const created = await this.prisma.category.create({
-          data: { name: cat.category_name, type, bouquetId: defaultBouquetId },
+          data: { name: cat.category_name, type, categoryBouquets: { create: { bouquetId: defaultBouquetId } } },
           select: { id: true },
         });
         map.set(cat.category_id, created.id);
@@ -595,11 +595,11 @@ export class MigrationService implements OnModuleInit {
         name: true,
         primaryUrl: true,
         categoryId: true,
-        category: { select: { id: true, name: true, type: true, bouquetId: true } },
+        category: { select: { id: true, name: true, type: true, categoryBouquets: { select: { bouquetId: true } } } },
       },
     });
 
-    const toFix: Array<{ id: string; name: string; oldType: string; newType: string; categoryName: string; bouquetId: string }> = [];
+    const toFix: Array<{ id: string; name: string; oldType: string; newType: string; categoryName: string; bouquetIds: string[] }> = [];
 
     for (const stream of streams) {
       if (!stream.category) continue;
@@ -611,7 +611,7 @@ export class MigrationService implements OnModuleInit {
           oldType: stream.category.type,
           newType: inferredType,
           categoryName: stream.category.name,
-          bouquetId: stream.category.bouquetId,
+          bouquetIds: stream.category.categoryBouquets.map((cb) => cb.bouquetId),
         });
       }
     }
@@ -630,9 +630,9 @@ export class MigrationService implements OnModuleInit {
           });
 
           if (!cat) {
-            const bouquetId = item.bouquetId ?? await this.getOrCreateDefaultBouquet();
+            const bouquetIds = item.bouquetIds.length > 0 ? item.bouquetIds : [await this.getOrCreateDefaultBouquet()];
             cat = await this.prisma.category.create({
-              data: { name: item.categoryName, type: item.newType as 'LIVE' | 'VOD' | 'SERIES', bouquetId },
+              data: { name: item.categoryName, type: item.newType as 'LIVE' | 'VOD' | 'SERIES', categoryBouquets: { create: bouquetIds.map((bouquetId) => ({ bouquetId })) } },
               select: { id: true },
             });
           }
@@ -1274,7 +1274,7 @@ export class MigrationService implements OnModuleInit {
         await this.prisma.category.update({ where: { id: existing.id }, data: { sortOrder } });
         categoryId = existing.id;
       } else {
-        const created = await this.prisma.category.create({ data: { name, type, sortOrder, bouquetId }, select: { id: true } });
+        const created = await this.prisma.category.create({ data: { name, type, sortOrder, categoryBouquets: { create: { bouquetId } } }, select: { id: true } });
         categoryId = created.id;
       }
     } else {
@@ -1282,7 +1282,7 @@ export class MigrationService implements OnModuleInit {
       if (existing) {
         categoryId = existing.id;
       } else {
-        const created = await this.prisma.category.create({ data: { name, type, sortOrder, bouquetId }, select: { id: true } });
+        const created = await this.prisma.category.create({ data: { name, type, sortOrder, categoryBouquets: { create: { bouquetId } } }, select: { id: true } });
         categoryId = created.id;
       }
     }
@@ -1641,7 +1641,7 @@ export class MigrationService implements OnModuleInit {
         await this.prisma.category.update({ where: { id: existing.id }, data: { sortOrder } });
         categoryId = existing.id;
       } else {
-        const created = await this.prisma.category.create({ data: { name, type, sortOrder, bouquetId }, select: { id: true } });
+        const created = await this.prisma.category.create({ data: { name, type, sortOrder, categoryBouquets: { create: { bouquetId } } }, select: { id: true } });
         categoryId = created.id;
       }
     } else {
@@ -1649,7 +1649,7 @@ export class MigrationService implements OnModuleInit {
       if (existing) {
         categoryId = existing.id;
       } else {
-        const created = await this.prisma.category.create({ data: { name, type, sortOrder, bouquetId }, select: { id: true } });
+        const created = await this.prisma.category.create({ data: { name, type, sortOrder, categoryBouquets: { create: { bouquetId } } }, select: { id: true } });
         categoryId = created.id;
       }
     }

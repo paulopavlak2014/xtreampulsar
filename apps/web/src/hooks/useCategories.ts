@@ -10,8 +10,7 @@ export interface Category {
   type: 'LIVE' | 'VOD' | 'SERIES';
   sortOrder: number;
   isActive: boolean;
-  bouquetId: string;
-  bouquet?: { id: string; name: string };
+  categoryBouquets: { bouquetId: string; bouquet: { id: string; name: string } }[];
   createdAt: string;
   _count?: { streams: number };
 }
@@ -33,26 +32,26 @@ export function useCategories(type?: string) {
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { name: string; type: string; bouquetId: string }) =>
+    mutationFn: (data: { name: string; type: string; bouquetIds: string[] }) =>
       api.post<{ success: boolean; data: Category }>('/categories', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['categories'] });
-      toast.success('Kategori oluşturuldu');
+      toast.success('Categoria criada');
     },
-    onError: () => toast.error('Oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar categoria'),
   });
 }
 
 export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Category> }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<Category> & { bouquetIds?: string[] } }) =>
       api.patch(`/categories/${id}`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['categories'] });
-      toast.success('Kategori güncellendi');
+      toast.success('Categoria atualizada');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -62,8 +61,8 @@ export function useDeleteCategory() {
     mutationFn: (id: string) => api.delete(`/categories/${id}`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['categories'] });
-      toast.success('Kategori silindi');
+      toast.success('Categoria excluída');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

@@ -10,7 +10,7 @@ export class BouquetService {
   findAll() {
     return this.prisma.bouquet.findMany({
       include: {
-        _count: { select: { categories: true, userBouquets: true } },
+        _count: { select: { categoryBouquets: true, userBouquets: true } },
       },
       orderBy: { sortOrder: 'asc' },
     });
@@ -19,18 +19,22 @@ export class BouquetService {
   /** Roadmap B — bouquet basina icerik-tipi sayaclari (Kanal/Film/Dizi). */
   async contentCounts(): Promise<Record<string, { live: number; vod: number; series: number; total: number }>> {
     const cats = await this.prisma.category.findMany({
-      where: { bouquetId: { not: null } },
-      select: { bouquetId: true, type: true, _count: { select: { streams: true } } },
+      select: {
+        type: true,
+        _count: { select: { streams: true } },
+        categoryBouquets: { select: { bouquetId: true } },
+      },
     });
     const map: Record<string, { live: number; vod: number; series: number; total: number }> = {};
     for (const c of cats) {
-      if (!c.bouquetId) continue;
-      const m = (map[c.bouquetId] ??= { live: 0, vod: 0, series: 0, total: 0 });
       const n = c._count.streams;
-      if (c.type === 'LIVE') m.live += n;
-      else if (c.type === 'VOD') m.vod += n;
-      else if (c.type === 'SERIES') m.series += n;
-      m.total += n;
+      for (const cb of c.categoryBouquets) {
+        const m = (map[cb.bouquetId] ??= { live: 0, vod: 0, series: 0, total: 0 });
+        if (c.type === 'LIVE') m.live += n;
+        else if (c.type === 'VOD') m.vod += n;
+        else if (c.type === 'SERIES') m.series += n;
+        m.total += n;
+      }
     }
     return map;
   }
@@ -39,7 +43,7 @@ export class BouquetService {
     const bouquet = await this.prisma.bouquet.findUnique({
       where: { id },
       include: {
-        categories: { include: { _count: { select: { streams: true } } } },
+        categoryBouquets: { include: { category: { include: { _count: { select: { streams: true } } } } } },
         _count: { select: { userBouquets: true } },
       },
     });
@@ -61,10 +65,8 @@ export class BouquetService {
     await this.prisma.bouquet.delete({ where: { id } });
   }
 
-  // NOT: Entitlement kategori-bazlı (Category.bouquetId). Bir kategori yalnızca
-  // TEK bouquet'e ait olabildiğinden (zorunlu FK) kategoriler klonlanamaz; clone
-  // yalnızca bouquet meta verisini (ad/açıklama/durum) kopyalar. Kategori atamaları
-  // Kategoriler sayfasından yapılır.
+  // NOT: Entitlement kategori-bazlı (CategoryBouquet). Bir kategori birçok
+  // bouquet'e ait olabilir; clone yalnızca bouquet meta verisini kopyalar.
   async clone(bouquetId: string) {
     const source = await this.prisma.bouquet.findUnique({ where: { id: bouquetId } });
     if (!source) throw new NotFoundException(`Bouquet ${bouquetId} not found`);

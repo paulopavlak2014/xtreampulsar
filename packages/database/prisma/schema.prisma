@@ -207,10 +207,10 @@ model Bouquet {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  categories     Category[]
-  bouquetStreams BouquetStream[]
-  userBouquets   UserBouquet[]
-  packages       Package[]
+  categoryBouquets CategoryBouquet[]
+  bouquetStreams   BouquetStream[]
+  userBouquets     UserBouquet[]
+  packages         Package[]
 
   @@map("bouquets")
 }
@@ -220,17 +220,28 @@ model Category {
   externalId Int          @unique @default(autoincrement())
   name       String
   type       CategoryType
-  sortOrder  Int          @default(0)
-  isActive   Boolean      @default(true)
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  bouquetId String
-  bouquet   Bouquet @relation(fields: [bouquetId], references: [id])
-
-  streams Stream[]
+  categoryBouquets CategoryBouquet[]
+  streams          Stream[]
 
   @@map("categories")
+}
+
+model CategoryBouquet {
+  sortOrder Int @default(0)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  bouquetId String
+  bouquet   Bouquet @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, bouquetId])
+  @@map("category_bouquets")
 }
 
 // ─── Stream ──────────────────────────────────────────────────────────────────
