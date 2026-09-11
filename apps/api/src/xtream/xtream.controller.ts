@@ -973,8 +973,18 @@ export class XtreamController {
         streamDownUrl: fbStreamDown,
         rewrite: { proxyPrefix, upstreamOrigin, playlistUrl: streamRecord.primaryUrl },
         upstreamHeaders,
+        onHeartbeat: (delta) => {
+          void this.prisma.connection.updateMany({
+            where: { userId: user.id, streamId: streamRecord.id, endedAt: null },
+            data: { bytesOut: { increment: BigInt(delta) } },
+          }).catch(() => {});
+        },
         onEnd: (bytes) => {
           void this.analyticsService.trackBandwidth(streamRecord.id, Number(bytes), user.id);
+          void this.prisma.connection.updateMany({
+            where: { userId: user.id, streamId: streamRecord.id, endedAt: null },
+            data: { bytesOut: { increment: BigInt(bytes) } },
+          }).catch(() => {});
         },
       });
       return;
@@ -1123,6 +1133,22 @@ export class XtreamController {
     const proxyPrefix = `/live/${encodeURIComponent(username)}/${encodeURIComponent(password)}/${externalId}`;
     this.proxyToUpstream(target, req, res, {
       rewrite: { proxyPrefix, upstreamOrigin, playlistUrl: target },
+      onHeartbeat: (delta) => {
+        // Atualiza bytesOut na conexão a cada 15s (mostra tráfego na tabela)
+        void this.prisma.connection.updateMany({
+          where: { userId: user.id, streamId: stream.id, endedAt: null },
+          data: { bytesOut: { increment: BigInt(delta) } },
+        }).catch(() => {});
+      },
+      onEnd: (bytes) => {
+        // Registra bandwidth no Redis (gráfico por hora)
+        void this.analyticsService.trackBandwidth(stream.id, Number(bytes), user.id);
+        // Incrementa bytesOut finais na conexão
+        void this.prisma.connection.updateMany({
+          where: { userId: user.id, streamId: stream.id, endedAt: null },
+          data: { bytesOut: { increment: BigInt(bytes) } },
+        }).catch(() => {});
+      },
     });
   }
 
@@ -1206,8 +1232,10 @@ export class XtreamController {
     this.prefetchService?.prefetchSegments(streamId, 3);
 
     // Heartbeat: refresh connection updatedAt so analytics detects live viewers.
+    // Also track bytesOut from segment file size.
+    const segStat = fs.statSync(segmentFile);
     void this.prisma.connection
-      .updateMany({ where: { token }, data: { updatedAt: new Date() } })
+      .updateMany({ where: { token }, data: { updatedAt: new Date(), bytesOut: { increment: BigInt(segStat.size) } } })
       .catch(() => { /* stale token — ignore */ });
 
     res.setHeader('Content-Type', 'video/MP2T');
@@ -1259,9 +1287,10 @@ export class XtreamController {
       return;
     }
 
-    // Heartbeat: analitik canli izleyiciyi gorsun.
+    // Heartbeat: analitik canli izleyiciyi gorsun + bytesOut takibi.
+    const varStat = fs.statSync(target);
     void this.prisma.connection
-      .updateMany({ where: { token }, data: { updatedAt: new Date() } })
+      .updateMany({ where: { token }, data: { updatedAt: new Date(), bytesOut: { increment: BigInt(varStat.size) } } })
       .catch(() => { /* bayat token — yok say */ });
 
     res.setHeader('Content-Type', 'video/MP2T');
