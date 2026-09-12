@@ -744,7 +744,7 @@ export class UserService {
     const settings = await this.prisma.settings.findUnique({ where: { id: 'singleton' } });
     const baseUrl = settings?.serverUrl
       ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `https://painel.paineis.fun:${settings?.serverPort ?? 25461}`;
+      : `http://localhost:${settings?.serverPort ?? 25461}`;
 
     const m3uUrl = `${baseUrl}/get.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}&type=m3u_plus`;
     const playerApiUrl = `${baseUrl}/player_api.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}`;
@@ -807,7 +807,7 @@ export class UserService {
 
     const baseUrl = settings?.serverUrl
       ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `https://painel.paineis.fun:${settings?.serverPort ?? 25461}`;
+      : `http://localhost:${settings?.serverPort ?? 25461}`;
 
     const m3uUrl = `${baseUrl}/get.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}&type=m3u_plus`;
     return { user: { ...user, password: rawPassword }, m3uUrl };
@@ -854,7 +854,7 @@ export class UserService {
     const settings = await this.prisma.settings.findUnique({ where: { id: 'singleton' } });
     const baseUrl = settings?.serverUrl
       ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `https://painel.paineis.fun:${settings?.serverPort ?? 25461}`;
+      : `http://localhost:${settings?.serverPort ?? 25461}`;
 
     const payload = JSON.stringify({
       dns: baseUrl,
