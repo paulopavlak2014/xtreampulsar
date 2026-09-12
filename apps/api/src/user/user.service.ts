@@ -742,9 +742,11 @@ export class UserService {
     });
 
     const settings = await this.prisma.settings.findUnique({ where: { id: 'singleton' } });
-    const baseUrl = settings?.serverUrl
-      ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `http://localhost:${settings?.serverPort ?? 25461}`;
+    const port = settings?.serverPort ?? 25461;
+    const rawUrl = settings?.serverUrl || settings?.serverUrls?.[settings?.primaryUrlIndex ?? 0] || '';
+    const baseUrl = rawUrl
+      ? (rawUrl.startsWith('http') ? `${rawUrl}:${port}` : `https://${rawUrl}:${port}`)
+      : `https://painel.paineis.fun:${port}`;
 
     const m3uUrl = `${baseUrl}/get.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}&type=m3u_plus`;
     const playerApiUrl = `${baseUrl}/player_api.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}`;
@@ -805,9 +807,11 @@ export class UserService {
       skipDuplicates: true,
     });
 
-    const baseUrl = settings?.serverUrl
-      ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `http://localhost:${settings?.serverPort ?? 25461}`;
+    const port = settings?.serverPort ?? 25461;
+    const rawUrl = settings?.serverUrl || settings?.serverUrls?.[settings?.primaryUrlIndex ?? 0] || '';
+    const baseUrl = rawUrl
+      ? (rawUrl.startsWith('http') ? `${rawUrl}:${port}` : `https://${rawUrl}:${port}`)
+      : `https://painel.paineis.fun:${port}`;
 
     const m3uUrl = `${baseUrl}/get.php?username=${encodeURIComponent(user.username)}&password=${encodeURIComponent(rawPassword)}&type=m3u_plus`;
     return { user: { ...user, password: rawPassword }, m3uUrl };
@@ -852,9 +856,11 @@ export class UserService {
     if (!user) throw new NotFoundException(`User ${id} not found`);
 
     const settings = await this.prisma.settings.findUnique({ where: { id: 'singleton' } });
-    const baseUrl = settings?.serverUrl
-      ? `${settings.serverUrl}:${settings.serverPort ?? 25461}`
-      : `http://localhost:${settings?.serverPort ?? 25461}`;
+    const port = settings?.serverPort ?? 25461;
+    const rawUrl = settings?.serverUrl || settings?.serverUrls?.[settings?.primaryUrlIndex ?? 0] || '';
+    const baseUrl = rawUrl
+      ? (rawUrl.startsWith('http') ? `${rawUrl}:${port}` : `https://${rawUrl}:${port}`)
+      : `https://painel.paineis.fun:${port}`;
 
     const payload = JSON.stringify({
       dns: baseUrl,
