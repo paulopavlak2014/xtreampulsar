@@ -590,7 +590,6 @@ model User {
   username            String     @unique
   password            String
   plainPassword       String?
-  playlistToken       String?    @unique  // Token para URLs Xtream (não é a senha de login)
   role                UserRole   @default(USER)
   maxConnections      Int        @default(1)
   status              UserStatus @default(ACTIVE)

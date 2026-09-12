@@ -126,7 +126,6 @@ export interface User {
   isTrial?: boolean;
   trialEndsAt?: string | null;
   plainPassword?: string | null;
-  playlistToken?: string | null;
   allowedIps?: string[];
   allowedCountries?: string[];
   blockVpn?: boolean;

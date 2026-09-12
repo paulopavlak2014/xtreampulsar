@@ -1264,10 +1264,10 @@ function UserDetailModal({ userId, user, onClose, packages, onUpdate }: UserDeta
           {/* Bağlantı URL'leri — kimlik-bazlı (Xtream) */}
           <div className="border-t border-border pt-4">
             <div className="text-xs text-muted mb-2">{t('users.connectionUrls')}</div>
-            {user.playlistToken ? (
+            {user.plainPassword ? (
               (() => {
                 const u = encodeURIComponent(user.username);
-                const pw = encodeURIComponent(user.playlistToken);
+                const pw = encodeURIComponent(user.plainPassword);
                 const groups: { group: string; items: { label: string; suffix: string }[] }[] = [
                   { group: t('users.fmtPlaylists'), items: [
                     { label: 'M3U Plus — HLS', suffix: `get.php?username=${u}&password=${pw}&type=m3u_plus&output=m3u8` },
