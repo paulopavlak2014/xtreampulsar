@@ -9,7 +9,7 @@ export interface Bouquet {
   sortOrder: number;
   isActive: boolean;
   createdAt: string;
-  _count?: { categories: number; userBouquets: number };
+  _count?: { categoryBouquets: number; userBouquets: number };
 }
 
 export function useBouquets() {

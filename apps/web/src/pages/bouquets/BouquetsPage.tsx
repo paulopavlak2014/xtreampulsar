@@ -86,7 +86,7 @@ export function BouquetsPage() {
       key: 'categories',
       header: t('nav.categories'),
       render: (row) => (
-        <span className="text-sm font-semibold text-slate-200">{row._count?.categories ?? 0}</span>
+        <span className="text-sm font-semibold text-slate-200">{row._count?.categoryBouquets ?? 0}</span>
       ),
     },
     {
