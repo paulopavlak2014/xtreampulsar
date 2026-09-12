@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Trash2, Edit2, FolderOpen, Square, CheckSquare } from 'lucide-react';
+import { Plus, Trash2, Edit2, FolderOpen, Square, CheckSquare, RefreshCw } from 'lucide-react';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
@@ -39,6 +39,9 @@ export function CategoriesPage() {
   const [editTarget, setEditTarget] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(FORM_DEFAULT);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showBulkBouquetModal, setShowBulkBouquetModal] = useState(false);
+  const [bulkBouquetIds, setBulkBouquetIds] = useState<string[]>([]);
+  const [bulkBouquetMode, setBulkBouquetMode] = useState<'replace' | 'add'>('replace');
 
   const { data: categories = [], isLoading } = useCategories(activeTab || undefined);
   const { data: bouquets = [] } = useBouquets();
@@ -67,6 +70,39 @@ export function CategoriesPage() {
     setSelected(new Set());
     if (failed > 0) toast.error(t('categories.bulkDeleteFailed', { count: failed }));
     else toast.success(t('categories.bulkDeleteSuccess'));
+  };
+
+  const openBulkBouquet = () => {
+    setBulkBouquetIds([]);
+    setBulkBouquetMode('replace');
+    setShowBulkBouquetModal(true);
+  };
+
+  const handleBulkBouquet = async () => {
+    if (!bulkBouquetIds.length) {
+      toast.error(t('categories.selectAtLeastOneBouquet'));
+      return;
+    }
+    const total = selected.size;
+    let failed = 0;
+    for (const id of selected) {
+      try {
+        const cat = categories.find((c) => c.id === id);
+        if (!cat) continue;
+        let newIds: string[];
+        if (bulkBouquetMode === 'add') {
+          const existing = cat.categoryBouquets.map((cb) => cb.bouquetId);
+          newIds = Array.from(new Set([...existing, ...bulkBouquetIds]));
+        } else {
+          newIds = bulkBouquetIds;
+        }
+        await updateCat.mutateAsync({ id, data: { name: cat.name, type: cat.type, bouquetIds: newIds } });
+      } catch { failed++; }
+    }
+    setShowBulkBouquetModal(false);
+    setSelected(new Set());
+    if (failed > 0) toast.error(`${failed} categoria(s) falharam`);
+    else toast.success(`Bouquet atualizado em ${total} categoria(s)`);
   };
 
   const openAdd = () => { setForm(FORM_DEFAULT); setEditTarget(null); setShowModal(true); };
@@ -192,9 +228,14 @@ export function CategoriesPage() {
         </div>
         <div className="flex items-center gap-2">
           {selected.size > 0 && (
-            <button onClick={() => void bulkDelete()} className="btn btn-ghost text-danger border-danger/30 hover:bg-danger/10 text-sm">
-              <Trash2 className="w-4 h-4" /> {t('categories.deleteSelected', { count: selected.size })}
-            </button>
+            <>
+              <button onClick={openBulkBouquet} className="btn btn-ghost border-primary/30 hover:bg-primary/10 text-sm text-primary-light">
+                <RefreshCw className="w-4 h-4" /> Trocar Bouquet ({selected.size})
+              </button>
+              <button onClick={() => void bulkDelete()} className="btn btn-ghost text-danger border-danger/30 hover:bg-danger/10 text-sm">
+                <Trash2 className="w-4 h-4" /> {t('categories.deleteSelected', { count: selected.size })}
+              </button>
+            </>
           )}
           <button onClick={openAdd} className="btn btn-primary">
             <Plus className="w-4 h-4" /> {t('categories.addCategory')}
@@ -235,6 +276,39 @@ export function CategoriesPage() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={showBulkBouquetModal} onClose={() => setShowBulkBouquetModal(false)} title={`Trocar Bouquet — ${selected.size} categoria(s)`} size="md">
+        <div className="space-y-4 p-6">
+          <div>
+            <label className="label">Modo</label>
+            <div className="flex gap-3 mt-1">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bulkMode" value="replace" checked={bulkBouquetMode === 'replace'} onChange={() => setBulkBouquetMode('replace')} className="accent-primary" />
+                <span className="text-sm text-slate-300">Substituir bouquets</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="bulkMode" value="add" checked={bulkBouquetMode === 'add'} onChange={() => setBulkBouquetMode('add')} className="accent-primary" />
+                <span className="text-sm text-slate-300">Adicionar aos existentes</span>
+              </label>
+            </div>
+            <p className="text-xs text-muted mt-1">
+              {bulkBouquetMode === 'replace'
+                ? 'Os bouquets selecionados vão substituir os atuais em todas as categorias escolhidas.'
+                : 'Os bouquets selecionados serão adicionados sem remover os que já existem.'}
+            </p>
+          </div>
+          <div>
+            <label className="label">Bouquets</label>
+            <CountedBouquetSelector value={bulkBouquetIds} onChange={setBulkBouquetIds} maxHeight={280} />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="btn btn-ghost" onClick={() => setShowBulkBouquetModal(false)}>{t('common.cancel')}</button>
+            <button type="button" className="btn btn-primary" disabled={updateCat.isPending || !bulkBouquetIds.length} onClick={() => void handleBulkBouquet()}>
+              <RefreshCw className="w-4 h-4" /> Aplicar em {selected.size} categoria(s)
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
