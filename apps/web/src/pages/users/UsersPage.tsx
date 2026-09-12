@@ -1024,9 +1024,9 @@ function UserDetailModal({ userId, user, onClose, packages, onUpdate }: UserDeta
     const port = settings?.xtream?.port ?? 25461;
     if (rawUrl) {
       const host = rawUrl.replace(/^https?:\/\//, '').replace(/\/$/, '').split(':')[0];
-      return `http://${host}:${port}`;
+      return `https://${host}:${port}`;
     }
-    return `http://${window.location.hostname}:${port}`;
+    return `https://${window.location.hostname}:${port}`;
   })();
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
@@ -1701,9 +1701,9 @@ function PlaylistTab({ userId, username }: { userId: string; username: string })
     if (rawUrl) {
       // strip any trailing slash and protocol, always use http for Xtream port
       const host = rawUrl.replace(/^https?:\/\//, '').replace(/\/$/, '').split(':')[0];
-      return `http://${host}:${port}`;
+      return `https://${host}:${port}`;
     }
-    return `http://${window.location.hostname}:${port}`;
+    return `https://${window.location.hostname}:${port}`;
   })();
   const [showCreate, setShowCreate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
