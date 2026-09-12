@@ -47,3 +47,8 @@ coverage/
 
 # pnpm
 .pnpm-debug.log
+
+# SSL certs e segredos
+nginx/ssl/
+reset-admin.js
+nginx/*.bak*
