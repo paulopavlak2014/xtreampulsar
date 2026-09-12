@@ -154,6 +154,7 @@ services:
       - "80:80"
       - "443:443"
       - "25461:25461"
+      - "25463:25463"
     restart: always
     networks:
       - internal
