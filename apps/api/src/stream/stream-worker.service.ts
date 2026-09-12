@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   OnModuleDestroy,
+  OnModuleInit,
   NotFoundException,
   Optional,
 } from '@nestjs/common';
@@ -44,7 +45,7 @@ interface WorkerState {
 }
 
 @Injectable()
-export class StreamWorkerService implements OnModuleDestroy {
+export class StreamWorkerService implements OnModuleDestroy, OnModuleInit {
   private readonly logger = new Logger(StreamWorkerService.name);
   private readonly workers = new Map<string, WorkerState>();
   private readonly hlsOutputPath =
@@ -58,6 +59,29 @@ export class StreamWorkerService implements OnModuleDestroy {
   ) {
     this.ffmpegPath = process.env.FFMPEG_PATH || '/usr/bin/ffmpeg';
     this.logger.log(`FFmpeg path configured: ${this.ffmpegPath}`);
+  }
+
+  async onModuleInit(): Promise<void> {
+    // Startup'ta HLS çıktı dizinini temizle: önceki API restart'ından kalan
+    // öksüz segment dosyaları (ffmpeg kapanınca silinmemiş .ts) diski dolduruyordu.
+    // API başlarken hiçbir worker ayakta değildir, bu yüzden tüm dizinler öksüzdür.
+    try {
+      fs.mkdirSync(this.hlsOutputPath, { recursive: true });
+      const entries = fs.readdirSync(this.hlsOutputPath);
+      for (const entry of entries) {
+        const dir = path.join(this.hlsOutputPath, entry);
+        try {
+          fs.rmSync(dir, { recursive: true, force: true });
+        } catch {
+          /* yok say */
+        }
+      }
+      if (entries.length > 0) {
+        this.logger.log(`Temizlik: ${entries.length} öksüz HLS dizini silindi (${this.hlsOutputPath})`);
+      }
+    } catch (e) {
+      this.logger.warn(`HLS temizliği başarısız: ${(e as Error).message}`);
+    }
   }
 
   async startWorker(streamId: string, overrideUrl?: string): Promise<void> {
@@ -250,6 +274,13 @@ export class StreamWorkerService implements OnModuleDestroy {
     state.stopping = true;
     state.process.kill('SIGTERM');
     this.workers.delete(streamId);
+
+    // TRANSCODE/LOOP durdurulunca HLS çıktı dizinini de sil (öksüz segment kalmasın).
+    try {
+      fs.rmSync(path.join(this.hlsOutputPath, streamId), { recursive: true, force: true });
+    } catch {
+      /* dizin yoksa yok say */
+    }
 
     await this.prisma.stream.update({
       where: { id: streamId },
