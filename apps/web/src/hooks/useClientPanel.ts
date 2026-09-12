@@ -53,9 +53,9 @@ clientApi.interceptors.response.use(
         window.location.href = '/client/login';
       }
     } else if (status === 503) {
-      toast.error('Sunucu geçici olarak kullanılamıyor, lütfen bekleyin.');
+      toast.error('Servidor temporariamente indisponível, aguarde.');
     } else if (status === 429) {
-      toast.error('Çok fazla istek gönderildi, lütfen bekleyin.');
+      toast.error('Muitas requisições enviadas, aguarde.');
     }
     return Promise.reject(err as Error);
   },

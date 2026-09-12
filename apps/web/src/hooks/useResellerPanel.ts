@@ -56,9 +56,9 @@ resellerApi.interceptors.response.use(
         window.location.href = '/reseller/login';
       }
     } else if (status === 503) {
-      toast.error('Sunucu geçici olarak kullanılamıyor, lütfen bekleyin.');
+      toast.error('Servidor temporariamente indisponível, aguarde.');
     } else if (status === 429) {
-      toast.error('Çok fazla istek gönderildi, lütfen bekleyin.');
+      toast.error('Muitas requisições enviadas, aguarde.');
     }
     return Promise.reject(err as Error);
   },
@@ -251,11 +251,11 @@ export function useResellerCreateUser() {
     }) => resellerApi.post('/users', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['reseller-panel'] });
-      toast.success('Kullanıcı oluşturuldu');
+      toast.success('Usuário criado');
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Kullanıcı oluşturulamadı');
+      toast.error(msg ?? 'Falha ao criar usuário');
     },
   });
 }
@@ -282,7 +282,7 @@ export function useResellerQuickCreate() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Kullanıcı oluşturulamadı');
+      toast.error(msg ?? 'Falha ao criar usuário');
     },
   });
 }
@@ -302,7 +302,7 @@ export function useResellerQuickCreateWithPackage() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Kullanıcı oluşturulamadı');
+      toast.error(msg ?? 'Falha ao criar usuário');
     },
   });
 }

@@ -29,7 +29,7 @@ export function TwoFactorSetupPage() {
     api.get<{ success: boolean; data: SetupData }>(`/auth/2fa/forced-setup?setupToken=${encodeURIComponent(token)}`)
       .then((res) => setSetupData(res.data.data))
       .catch(() => {
-        toast.error('2FA kurulum token\'ı geçersiz veya süresi dolmuş. Tekrar giriş yapın.');
+        toast.error('Token de configuração 2FA inválido ou expirado. Faça login novamente.');
         sessionStorage.removeItem('2fa_setup_token');
         void router.navigate({ to: '/login' });
       })

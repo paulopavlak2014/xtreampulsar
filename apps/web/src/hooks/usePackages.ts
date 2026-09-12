@@ -27,7 +27,7 @@ export function useCreatePackage() {
     }) => api.post<{ success: boolean; data: Package }>('/packages', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['packages'] });
-      toast.success('Paket oluşturuldu');
+      toast.success('Pacote criado');
     },
     onError: () => toast.error('Falha ao criar'),
   });

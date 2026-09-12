@@ -63,9 +63,9 @@ export function useCreateUser() {
     }) => api.post<{ success: boolean; data: User }>('/users', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Kullanıcı oluşturuldu');
+      toast.success('Usuário criado');
     },
-    onError: () => toast.error('Kullanıcı oluşturulamadı'),
+    onError: () => toast.error('Falha ao criar usuário'),
   });
 }
 
@@ -100,7 +100,7 @@ export function useQuickCreateUser() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: () => toast.error('Kullanıcı oluşturulamadı'),
+    onError: () => toast.error('Falha ao criar usuário'),
   });
 }
 

@@ -76,7 +76,7 @@ export function useCancelJob() {
     mutationFn: (id: string) => api.delete(`/migration/jobs/${id}`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['migration'] });
-      toast.success('İptal edildi');
+      toast.success('Cancelado');
     },
     onError: () => toast.error('Falha ao cancelar'),
   });
