@@ -1184,11 +1184,10 @@ function BulkBackupUrlPanel() {
   const { data: streamsData, isLoading } = useStreams({
     categoryId: categoryId || undefined,
     search: search || undefined,
-    limit: 200,
-    type: 'LIVE',
+    limit: 100,
   });
 
-  const streams = streamsData?.items ?? [];
+  const streams = [...(streamsData?.items ?? [])].sort((a: any, b: any) => a.name.localeCompare(b.name));
 
   const liveCategories = categories.filter((c: any) => c.type === 'LIVE');
 
