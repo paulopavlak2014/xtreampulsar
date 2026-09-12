@@ -22,7 +22,9 @@ import {
   Eraser,
   Link2,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
+import { useStreams, useUpdateStreamBackupUrls } from '@/hooks/useStreams';
 import { useFixUsersOutput, useStreamsToJson, useSetStreamServer, useCleanDatabase, useRestartAllStreams, useReencodeVods, useBulkSeriesImport, useSystemStats, useIptvCheck, useFixStreamTypes, useRegroupSeries, useProbeVodDurations, useSanitizeNames, useReplaceUrl, REPLACE_URL_FIELDS, type ReplaceUrlField } from '@/hooks/useTools';
 import { useServers } from '@/hooks/useServers';
 import { useCategories } from '@/hooks/useCategories';
@@ -43,7 +45,8 @@ type ToolId =
   | 'regroup-series'
   | 'probe-durations'
   | 'sanitize-names'
-  | 'replace-url';
+  | 'replace-url'
+  | 'bulk-backup';
 
 const TOOLS: { id: ToolId; icon: React.ElementType; label: string }[] = [
   { id: 'fix-users', icon: Users, label: 'Fix Users Output' },
@@ -60,6 +63,7 @@ const TOOLS: { id: ToolId; icon: React.ElementType; label: string }[] = [
   { id: 'probe-durations', icon: Clock, label: 'VOD Durations' },
   { id: 'sanitize-names', icon: Eraser, label: 'Sanitize Names' },
   { id: 'replace-url', icon: Link2, label: 'Replace URL / DNS' },
+  { id: 'bulk-backup', icon: ShieldCheck, label: 'Backup URLs em Massa' },
 ];
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
@@ -1161,8 +1165,158 @@ function SystemStatsPanel() {
       <div className="flex items-center justify-center h-40">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
-    );
-  }
+  );
+}
+
+// ─── Bulk Backup URL Panel ────────────────────────────────────────────────────
+
+function BulkBackupUrlPanel() {
+  const { data: categories = [] } = useCategories();
+  const [categoryId, setCategoryId] = useState('');
+  const [search, setSearch] = useState('');
+  const [backupMap, setBackupMap] = useState<Record<string, string>>({});
+  const [m3uText, setM3uText] = useState('');
+  const [showM3u, setShowM3u] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(0);
+  const updateBackup = useUpdateStreamBackupUrls();
+
+  const { data: streamsData, isLoading } = useStreams({
+    categoryId: categoryId || undefined,
+    search: search || undefined,
+    limit: 200,
+    type: 'LIVE',
+  });
+
+  const streams = streamsData?.items ?? [];
+
+  const liveCategories = categories.filter((c: any) => c.type === 'LIVE');
+
+  const parseM3u = () => {
+    const lines = m3uText.split('\n').map(l => l.trim());
+    const map: Record<string, string> = {};
+    let name = '';
+    for (const line of lines) {
+      if (line.startsWith('#EXTINF')) {
+        name = line.split(',').pop()?.trim().toLowerCase() ?? '';
+      } else if (line.startsWith('http') && name) {
+        map[name] = line;
+        name = '';
+      }
+    }
+
+    let matched = 0;
+    const newMap = { ...backupMap };
+    for (const stream of streams) {
+      const key = stream.name.toLowerCase().replace(/ (sd|hd|fhd|4k|h264)$/i, '').trim();
+      if (map[key] && !newMap[stream.id]) {
+        newMap[stream.id] = map[key];
+        matched++;
+      }
+    }
+    setBackupMap(newMap);
+    setShowM3u(false);
+    setM3uText('');
+    toast.success(`${matched} canais mapeados automaticamente`);
+  };
+
+  const saveAll = async () => {
+    const entries = Object.entries(backupMap).filter(([, url]) => url.trim());
+    if (!entries.length) { toast.error('Nenhuma URL de backup para salvar'); return; }
+    setSaving(true);
+    let ok = 0;
+    for (const [id, url] of entries) {
+      try {
+        await updateBackup.mutateAsync({ id, backupUrls: [url.trim()] });
+        ok++;
+      } catch {}
+    }
+    setSaving(false);
+    setSaved(ok);
+    toast.success(`${ok} backup(s) salvo(s)`);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-100">Backup URLs em Massa</h2>
+        <p className="text-sm text-muted mt-0.5">Defina URLs de backup para múltiplos canais de uma vez.</p>
+      </div>
+
+      <div className="flex gap-3 flex-wrap">
+        <select className="input w-56" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+          <option value="">Todas as categorias</option>
+          {liveCategories.map((c: any) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+        <input className="input flex-1 min-w-40" placeholder="Buscar canal..." value={search} onChange={e => setSearch(e.target.value)} />
+        <button className="btn btn-ghost border-primary/30 text-primary-light text-sm" onClick={() => setShowM3u(!showM3u)}>
+          📋 Importar M3U
+        </button>
+        <button className="btn btn-primary text-sm" onClick={() => void saveAll()} disabled={saving}>
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+          Salvar Tudo {saved > 0 && `(${saved})`}
+        </button>
+      </div>
+
+      {showM3u && (
+        <div className="space-y-2 p-4 rounded-lg border border-border bg-surface-2">
+          <p className="text-sm text-muted">Cole o conteúdo do arquivo M3U de backup:</p>
+          <textarea
+            className="input w-full font-mono text-xs"
+            rows={8}
+            value={m3uText}
+            onChange={e => setM3uText(e.target.value)}
+            placeholder="#EXTM3U&#10;#EXTINF:-1,band&#10;http://38.58.177.30:14186/&#10;..."
+          />
+          <button className="btn btn-primary text-sm" onClick={parseM3u} disabled={!m3uText.trim()}>
+            Cruzar com canais visíveis
+          </button>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-10">
+          <Loader2 className="w-6 h-6 animate-spin text-muted" />
+        </div>
+      ) : (
+        <div className="rounded-lg border border-border overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-surface-2">
+                <th className="text-left px-3 py-2 text-muted font-medium">Canal</th>
+                <th className="text-left px-3 py-2 text-muted font-medium">URL Principal</th>
+                <th className="text-left px-3 py-2 text-muted font-medium">URL Backup</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {streams.map((stream: any) => (
+                <tr key={stream.id} className="hover:bg-surface-2 transition-colors">
+                  <td className="px-3 py-2 font-medium text-slate-200 whitespace-nowrap">{stream.name}</td>
+                  <td className="px-3 py-2 text-muted text-xs font-mono truncate max-w-[200px]" title={stream.primaryUrl}>
+                    {stream.primaryUrl}
+                  </td>
+                  <td className="px-3 py-2">
+                    <input
+                      className="input text-xs py-1 w-full"
+                      placeholder="http://ip:porta/..."
+                      value={backupMap[stream.id] ?? (stream.backupUrls?.[0] ?? '')}
+                      onChange={e => setBackupMap(p => ({ ...p, [stream.id]: e.target.value }))}
+                    />
+                  </td>
+                </tr>
+              ))}
+              {streams.length === 0 && (
+                <tr><td colSpan={3} className="text-center py-8 text-muted">Nenhum canal encontrado</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 
   return (
     <div>
@@ -1298,6 +1452,7 @@ export function AdvancedToolsPage() {
           {active === 'probe-durations' && <ProbeDurationsPanel />}
           {active === 'sanitize-names' && <SanitizeNamesPanel />}
           {active === 'replace-url' && <ReplaceUrlPanel />}
+          {active === 'bulk-backup' && <BulkBackupUrlPanel />}
         </div>
       </div>
     </div>
