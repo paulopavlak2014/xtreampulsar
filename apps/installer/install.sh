@@ -511,10 +511,19 @@ run_with_spinner "Compilando e iniciando todos os serviços" docker compose up -
 log_info "Aguardando serviços ficarem prontos (30s)..."
 sleep 30
 
+# ── Painel local: com domínio o nginx usa HTTPS (e HTTP:80 redireciona p/ 301),
+#    sem domínio usa HTTP puro. Testes internos devem acertar o esquema e usar
+#    curl -k (aceitar self-signed) — do contrário o health check vê só 301.
+if [[ -n "$DOMAIN" ]]; then
+  LOCAL_BASE="https://localhost"
+else
+  LOCAL_BASE="http://localhost"
+fi
+
 # Health check
 HEALTH_OK=""
 for i in $(seq 1 6); do
-  HTTP=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/api/v1/health 2>/dev/null || echo "000")
+  HTTP=$(curl -sk -o /dev/null -w "%{http_code}" "${LOCAL_BASE}/api/v1/health" 2>/dev/null || echo "000")
   if [[ "$HTTP" == "200" || "$HTTP" == "503" ]]; then
     log_success "API respondendo (HTTP $HTTP)"
     HEALTH_OK="1"; break
@@ -581,8 +590,8 @@ log_info "Criando usuário admin..."
 # não é evidência suficiente. Tente 6 vezes com espera crescente.
 SETUP_RESPONSE="000"
 for i in $(seq 1 6); do
-  SETUP_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-    -X POST "http://localhost/api/v1/auth/setup" \
+  SETUP_RESPONSE=$(curl -sk -o /dev/null -w "%{http_code}" \
+    -X POST "${LOCAL_BASE}/api/v1/auth/setup" \
     -H "Content-Type: application/json" \
     -H "X-Admin-Key: ${ADMIN_API_KEY}" \
     -d "{\"username\":\"admin\",\"password\":\"${ADMIN_PASSWORD}\"}" \
