@@ -9,6 +9,7 @@ const WS_ALLOWED_ORIGINS = [
   'https://xtreampulsar.com',
   'https://www.xtreampulsar.com',
   'https://control.xtreampulsar.com',
+  'https://painel.paineis.fun',
   'http://169.58.12.153',
   ...(process.env.CORS_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
 ];
