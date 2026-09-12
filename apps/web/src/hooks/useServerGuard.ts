@@ -45,9 +45,9 @@ export function useUpdateServerGuard(serverId: string | null) {
       api.put<{ data: ServerGuard }>(`/servers/${serverId!}/guard`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['servers', serverId, 'guard'] });
-      toast.success('Guard ayarları kaydedildi');
+      toast.success('Configurações do Guard salvas');
     },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 
@@ -69,7 +69,7 @@ export function useUnblockIp(serverId: string | null) {
       api.post(`/servers/${serverId!}/guard/unblock`, { ip }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['servers', serverId, 'blocked-ips'] });
-      toast.success('IP engeli kaldırıldı');
+      toast.success('Bloqueio de IP removido');
     },
   });
 }

@@ -50,9 +50,9 @@ export function useUnblockIP() {
     mutationFn: (ip: string) => api.delete(`/security/unban/${encodeURIComponent(ip)}`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['security'] });
-      toast.success('IP engeli kaldırıldı');
+      toast.success('Bloqueio de IP removido');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -66,7 +66,7 @@ export function useBlockIP() {
       void qc.invalidateQueries({ queryKey: ['security'] });
       toast.success('IP engellendi');
     },
-    onError: () => toast.error('Engelleme başarısız'),
+    onError: () => toast.error('Falha ao bloquear'),
   });
 }
 

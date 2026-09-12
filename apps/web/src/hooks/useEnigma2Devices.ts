@@ -32,8 +32,8 @@ export function useUpdateEnigma2Device() {
   return useMutation({
     mutationFn: ({ id, ...body }: { id: string; userId?: string | null; deviceName?: string | null; boxType?: string | null; oeVersion?: string }) =>
       api.put<{ data: Enigma2Device }>(`/enigma2-devices/${id}`, body).then((r) => r.data.data),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Cihaz güncellendi'); },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Dispositivo atualizado'); },
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -42,6 +42,6 @@ export function useDeleteEnigma2Device() {
   return useMutation({
     mutationFn: (id: string) => api.delete(`/enigma2-devices/${id}`),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Cihaz silindi'); },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

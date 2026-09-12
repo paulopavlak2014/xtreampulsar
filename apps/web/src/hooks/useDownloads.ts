@@ -53,7 +53,7 @@ function useAction(action: string, okMsg?: string) {
   return useMutation({
     mutationFn: (id: string) => api.post(`/downloads/${id}/${action}`),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['downloads'] }); if (okMsg) toast.success(okMsg); },
-    onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'İşlem başarısız'),
+    onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Operação falhou'),
   });
 }
 
@@ -85,8 +85,8 @@ export function useUpdateDownloadConfig() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (dto: Partial<DownloadConfig>) => api.patch('/downloads/config', dto),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['download-config'] }); toast.success('Ayar kaydedildi'); },
-    onError: () => toast.error('Kaydedilemedi'),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['download-config'] }); toast.success('Configuração salva'); },
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 

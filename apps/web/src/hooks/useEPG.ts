@@ -72,7 +72,7 @@ export function useCreateEPGSource() {
       void qc.invalidateQueries({ queryKey: ['epg'] });
       toast.success('EPG kaynağı eklendi');
     },
-    onError: () => toast.error('Ekleme başarısız'),
+    onError: () => toast.error('Falha ao adicionar'),
   });
 }
 
@@ -85,7 +85,7 @@ export function useUpdateEPGSource() {
       void qc.invalidateQueries({ queryKey: ['epg'] });
       toast.success('Güncellendi');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -97,7 +97,7 @@ export function useDeleteEPGSource() {
       void qc.invalidateQueries({ queryKey: ['epg'] });
       toast.success('EPG kaynağı silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 
@@ -109,7 +109,7 @@ export function useParseEPGSource() {
       void qc.invalidateQueries({ queryKey: ['epg'] });
       toast.success('EPG ayrıştırma başlatıldı');
     },
-    onError: () => toast.error('Başlatma başarısız'),
+    onError: () => toast.error('Falha ao iniciar'),
   });
 }
 
@@ -123,9 +123,9 @@ export function useParseAllEPGSources() {
     onSuccess: (res) => {
       void qc.invalidateQueries({ queryKey: ['epg'] });
       const { total, success, failed } = res.data.data;
-      toast.success(`${success}/${total} kaynak güncellendi${failed > 0 ? ` (${failed} hata)` : ''}`);
+      toast.success(`${success}/${total} fontes atualizadas${failed > 0 ? ` (${failed} erros)` : ''}`);
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -146,7 +146,7 @@ export function useMassAssignEPG() {
     onSuccess: () => {
       toast.success('Eşleştirme başlatıldı — arka planda çalışıyor');
     },
-    onError: () => toast.error('Toplu eşleştirme başarısız'),
+    onError: () => toast.error('Falha na correspondência em lote'),
   });
 }
 
@@ -203,9 +203,9 @@ export function useCreateEPGMapping() {
       api.post('/epg/mappings', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['epg', 'mappings'] });
-      toast.success('Eşleştirme kaydedildi');
+      toast.success('Mapeamento salvo');
     },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 

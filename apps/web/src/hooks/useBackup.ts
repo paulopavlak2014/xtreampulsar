@@ -27,7 +27,7 @@ export function useCreateBackup() {
       void qc.invalidateQueries({ queryKey: ['backup-list'] });
       toast.success('Yedek oluşturuldu');
     },
-    onError: () => toast.error('Yedek oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar backup'),
   });
 }
 
@@ -39,7 +39,7 @@ export function useDeleteBackup() {
       void qc.invalidateQueries({ queryKey: ['backup-list'] });
       toast.success('Yedek silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 
@@ -51,7 +51,7 @@ export function useRestoreBackup() {
       void qc.invalidateQueries();
       toast.success('Yedek geri yüklendi');
     },
-    onError: () => toast.error('Geri yükleme başarısız'),
+    onError: () => toast.error('Falha ao restaurar'),
   });
 }
 
@@ -76,7 +76,7 @@ export function useUploadDropbox() {
     mutationFn: (filename: string) =>
       api.post(`/backup/upload-dropbox/${encodeURIComponent(filename)}`),
     onSuccess: () => toast.success("Dropbox'a yüklendi"),
-    onError: () => toast.error("Dropbox yükleme başarısız"),
+    onError: () => toast.error('Falha no upload para Dropbox'),
   });
 }
 

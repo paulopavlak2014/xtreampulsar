@@ -13,6 +13,6 @@ export function useBulkAction() {
       const res = await api.post<{ success: boolean; data: BulkActionResult }>('/users/bulk', body);
       return res.data.data;
     },
-    onError: () => toast.error('Toplu işlem başarısız'),
+    onError: () => toast.error('Falha na operação em lote'),
   });
 }

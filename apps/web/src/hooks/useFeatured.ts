@@ -34,7 +34,7 @@ export function useCreateFeatured() {
   return useMutation({
     mutationFn: (body: FeaturedInput) => api.post('/featured', body),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Etkinlik eklendi'); },
-    onError: () => toast.error('Ekleme başarısız'),
+    onError: () => toast.error('Falha ao adicionar'),
   });
 }
 
@@ -42,8 +42,8 @@ export function useUpdateFeatured() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: FeaturedInput }) => api.patch(`/featured/${id}`, body),
-    onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Etkinlik güncellendi'); },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Evento atualizado'); },
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -52,6 +52,6 @@ export function useDeleteFeatured() {
   return useMutation({
     mutationFn: (id: string) => api.delete(`/featured/${id}`),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: KEY }); toast.success('Etkinlik silindi'); },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

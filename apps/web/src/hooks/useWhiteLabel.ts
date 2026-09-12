@@ -38,9 +38,9 @@ export function useUpdateWhiteLabel() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['white-label'] });
-      toast.success('White-label ayarları kaydedildi');
+      toast.success('Configurações White-Label salvas');
     },
-    onError: () => toast.error('Kayıt başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 
@@ -59,6 +59,6 @@ export function useUploadLogo() {
       void qc.invalidateQueries({ queryKey: ['white-label'] });
       toast.success('Logo yüklendi');
     },
-    onError: () => toast.error('Logo yükleme başarısız'),
+    onError: () => toast.error('Falha no upload do logo'),
   });
 }

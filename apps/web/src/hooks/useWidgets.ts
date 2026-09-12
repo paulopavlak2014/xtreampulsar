@@ -76,7 +76,7 @@ export function useCreateWidget() {
   return useMutation({
     mutationFn: (payload: WidgetPayload) => api.post('/widgets', payload),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['widgets'] }); },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 
@@ -85,7 +85,7 @@ export function useUpdateWidget() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: WidgetPayload }) => api.patch(`/widgets/${id}`, payload),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['widgets'] }); },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 

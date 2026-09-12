@@ -43,7 +43,7 @@ export function useCreateEpisode(seriesId: string) {
       toast.success('Bölüm eklendi');
     },
     onError: (err) =>
-      toast.error(isConflict(err) ? 'Bu sezon/bölüm zaten var' : 'Ekleme başarısız'),
+      toast.error(isConflict(err) ? 'Esta temporada/episódio já existe' : 'Falha ao adicionar'),
   });
 }
 
@@ -57,10 +57,10 @@ export function useUpdateEpisode(seriesId: string) {
       ),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['episodes', seriesId] });
-      toast.success('Bölüm güncellendi');
+      toast.success('Episódio atualizado');
     },
     onError: (err) =>
-      toast.error(isConflict(err) ? 'Bu sezon/bölüm zaten var' : 'Güncelleme başarısız'),
+      toast.error(isConflict(err) ? 'Esta temporada/episódio já existe' : 'Falha ao atualizar'),
   });
 }
 
@@ -73,6 +73,6 @@ export function useDeleteEpisode(seriesId: string) {
       void qc.invalidateQueries({ queryKey: ['episodes', seriesId] });
       toast.success('Bölüm silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

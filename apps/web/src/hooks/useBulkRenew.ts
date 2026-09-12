@@ -15,9 +15,9 @@ export function useBulkRenew() {
       return res.data.data;
     },
     onSuccess: (data) => {
-      toast.success(`${data.renewed} kullanıcı yenilendi${data.failed > 0 ? `, ${data.failed} başarısız` : ''}`);
+      toast.success(`${data.renewed} usuários renovados${data.failed > 0 ? `, ${data.failed} falharam` : ''}`);
     },
-    onError: () => toast.error('Toplu yenileme başarısız'),
+    onError: () => toast.error('Falha na renovação em lote'),
   });
 }
 

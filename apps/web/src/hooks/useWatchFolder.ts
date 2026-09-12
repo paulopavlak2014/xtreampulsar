@@ -47,7 +47,7 @@ export function useUpdateWatchConfig() {
   return useMutation({
     mutationFn: (payload: Partial<WatchConfig>) => api.patch('/watch-folder/config', payload),
     onSuccess: () => { void qc.invalidateQueries({ queryKey: ['watch-folder'] }); toast.success('Kaydedildi'); },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 
@@ -63,6 +63,6 @@ export function useScanWatchFolder() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success(`Tarandı: +${r.imported} içe aktarıldı, ${r.errors} hata`);
     },
-    onError: () => toast.error('Tarama başarısız'),
+    onError: () => toast.error('Falha na varredura'),
   });
 }

@@ -29,7 +29,7 @@ export function useCreatePackage() {
       void qc.invalidateQueries({ queryKey: ['packages'] });
       toast.success('Paket oluşturuldu');
     },
-    onError: () => toast.error('Oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar'),
   });
 }
 
@@ -40,9 +40,9 @@ export function useUpdatePackage() {
       api.patch(`/packages/${id}`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['packages'] });
-      toast.success('Paket güncellendi');
+      toast.success('Pacote atualizado');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -54,6 +54,6 @@ export function useDeletePackage() {
       void qc.invalidateQueries({ queryKey: ['packages'] });
       toast.success('Paket silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

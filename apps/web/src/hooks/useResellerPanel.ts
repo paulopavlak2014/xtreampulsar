@@ -314,11 +314,11 @@ export function useResellerUpdateProfile() {
       resellerApi.put('/resellers/me/profile', data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'me'] });
-      toast.success('Profil güncellendi');
+      toast.success('Perfil atualizado');
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Güncelleme başarısız');
+      toast.error(msg ?? 'Falha ao atualizar');
     },
   });
 }
@@ -330,7 +330,7 @@ export function useResellerChangePassword() {
     onSuccess: () => toast.success('Şifre değiştirildi'),
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Şifre değiştirilemedi');
+      toast.error(msg ?? 'Falha ao alterar senha');
     },
   });
 }
@@ -347,7 +347,7 @@ export function useResellerBulkAction() {
         vars.action === 'suspend' ? 'Askıya alındı' : 'Aktifleştirildi';
       toast.success(label);
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -361,7 +361,7 @@ export function useResellerUpdateUser() {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'user-bouquets', vars.id] });
       toast.success('Güncellendi');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -402,7 +402,7 @@ export function useResellerDeleteUser() {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'users'] });
       toast.success('Kullanıcı silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 
@@ -414,7 +414,7 @@ export function useResellerBanUser() {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'users'] });
       toast.success('Kullanıcı banlandı');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -433,7 +433,7 @@ export function useResellerExtendUser() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Uzatma başarısız');
+      toast.error(msg ?? 'Falha ao estender');
     },
   });
 }
@@ -446,7 +446,7 @@ export function useResellerKickUser() {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'users'] });
       toast.success('Kullanıcı bağlantısı kesildi');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -643,7 +643,7 @@ export function useResellerTransferCredits() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Transfer başarısız');
+      toast.error(msg ?? 'Falha na transferência');
     },
   });
 }
@@ -662,9 +662,9 @@ export function useUpdateResellerBranding() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['reseller-panel', 'me'] });
-      toast.success('Marka adı kaydedildi');
+      toast.success('Nome da marca salvo');
     },
-    onError: () => toast.error('Kaydedilemedi'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
 

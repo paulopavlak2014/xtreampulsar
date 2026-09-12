@@ -61,6 +61,6 @@ export function useManualHealthCheck() {
       void qc.invalidateQueries({ queryKey: ['stream-health', streamId] });
       void qc.invalidateQueries({ queryKey: ['streams'] });
     },
-    onError: () => toast.error('Sağlık kontrolü başarısız'),
+    onError: () => toast.error('Falha na verificação de saúde'),
   });
 }

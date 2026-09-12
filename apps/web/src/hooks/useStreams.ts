@@ -59,7 +59,7 @@ export function useStartStream() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream başlatıldı');
     },
-    onError: () => toast.error('Başlatma başarısız'),
+    onError: () => toast.error('Falha ao iniciar'),
   });
 }
 
@@ -71,7 +71,7 @@ export function useStopStream() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream durduruldu');
     },
-    onError: () => toast.error('Durdurma başarısız'),
+    onError: () => toast.error('Falha ao parar'),
   });
 }
 
@@ -83,7 +83,7 @@ export function useRestartStream() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream yeniden başlatıldı');
     },
-    onError: () => toast.error('Yeniden başlatma başarısız'),
+    onError: () => toast.error('Falha ao reiniciar'),
   });
 }
 
@@ -95,7 +95,7 @@ export function useDeleteStream() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 
@@ -107,7 +107,7 @@ export function useCreateStream() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream oluşturuldu');
     },
-    onError: () => toast.error('Oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar'),
   });
 }
 
@@ -118,9 +118,9 @@ export function useUpdateStream() {
       api.patch<{ success: boolean; data: Stream }>(`/streams/${id}`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['streams'] });
-      toast.success('Stream güncellendi');
+      toast.success('Transmissão atualizada');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -131,8 +131,8 @@ export function useUpdateStreamBackupUrls() {
       api.put(`/streams/${id}/backup-urls`, { backupUrls }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['streams'] });
-      toast.success('Yedek URL\'ler kaydedildi');
+      toast.success('URLs de backup salvas');
     },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }

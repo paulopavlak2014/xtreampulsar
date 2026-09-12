@@ -37,9 +37,9 @@ export function useUpdateMagDevice() {
       api.put<{ data: MagDevice }>(`/mag-devices/${id}`, { userId }).then((r) => r.data.data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: KEY });
-      toast.success('Cihaz güncellendi');
+      toast.success('Dispositivo atualizado');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -51,6 +51,6 @@ export function useDeleteMagDevice() {
       void qc.invalidateQueries({ queryKey: KEY });
       toast.success('Cihaz silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

@@ -70,6 +70,6 @@ export function useSyncM3uSource() {
       toast.success('Senkron başlatıldı');
       qc.invalidateQueries({ queryKey: ['m3u-sources'] });
     },
-    onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Senkron başarısız'),
+    onError: (e: unknown) => toast.error((e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Falha na sincronização'),
   });
 }

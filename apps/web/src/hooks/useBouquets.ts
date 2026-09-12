@@ -44,7 +44,7 @@ export function useCreateBouquet() {
       void qc.invalidateQueries({ queryKey: ['bouquets'] });
       toast.success("Bouquet oluşturuldu");
     },
-    onError: () => toast.error('Oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar'),
   });
 }
 
@@ -57,7 +57,7 @@ export function useUpdateBouquet() {
       void qc.invalidateQueries({ queryKey: ['bouquets'] });
       toast.success('Güncellendi');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -69,7 +69,7 @@ export function useDeleteBouquet() {
       void qc.invalidateQueries({ queryKey: ['bouquets'] });
       toast.success('Bouquet silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 
@@ -81,7 +81,7 @@ export function useResignBouquet() {
       void qc.invalidateQueries({ queryKey: ['bouquets'] });
       toast.success('ReSign tamamlandı');
     },
-    onError: () => toast.error('ReSign başarısız'),
+    onError: () => toast.error('Falha ao renovar assinatura'),
   });
 }
 
@@ -97,6 +97,6 @@ export function useCloneBouquet() {
       void qc.invalidateQueries({ queryKey: ['bouquets'] });
       toast.success('Bouquet kopyalandı');
     },
-    onError: () => toast.error('Kopyalama başarısız'),
+    onError: () => toast.error('Falha ao copiar'),
   });
 }

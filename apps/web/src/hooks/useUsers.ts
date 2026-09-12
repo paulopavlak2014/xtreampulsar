@@ -112,9 +112,9 @@ export function useUpdateUser() {
     onSuccess: (_res, vars) => {
       void qc.invalidateQueries({ queryKey: ['users'] });
       void qc.invalidateQueries({ queryKey: ['user', vars.id, 'bouquets'] });
-      toast.success('Kullanıcı güncellendi');
+      toast.success('Usuário atualizado');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -127,7 +127,7 @@ export function useExtendUser() {
       void qc.invalidateQueries({ queryKey: ['users'] });
       toast.success('Süre uzatıldı');
     },
-    onError: () => toast.error('Uzatma başarısız'),
+    onError: () => toast.error('Falha ao estender'),
   });
 }
 
@@ -139,7 +139,7 @@ export function useBanUser() {
       void qc.invalidateQueries({ queryKey: ['users'] });
       toast.success('Kullanıcı yasaklandı');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -149,9 +149,9 @@ export function useUnbanUser() {
     mutationFn: (id: string) => api.post(`/users/${id}/unban`),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['users'] });
-      toast.success('Yasak kaldırıldı');
+      toast.success('Ban removido');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -163,7 +163,7 @@ export function useKickUser() {
       void qc.invalidateQueries({ queryKey: ['users'] });
       toast.success('Bağlantılar kesildi');
     },
-    onError: () => toast.error('İşlem başarısız'),
+    onError: () => toast.error('Operação falhou'),
   });
 }
 
@@ -175,7 +175,7 @@ export function useDeleteUser() {
       void qc.invalidateQueries({ queryKey: ['users'] });
       toast.success('Kullanıcı silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 

@@ -25,7 +25,7 @@ export function useCreateWebhook() {
       void qc.invalidateQueries({ queryKey: KEY });
       toast.success('Webhook oluşturuldu');
     },
-    onError: () => toast.error('Oluşturma başarısız'),
+    onError: () => toast.error('Falha ao criar'),
   });
 }
 
@@ -36,9 +36,9 @@ export function useUpdateWebhook() {
       api.put<{ success: boolean; data: Webhook }>(`/webhooks/${id}`, dto).then((r) => r.data?.data ?? r.data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: KEY });
-      toast.success('Webhook güncellendi');
+      toast.success('Webhook atualizado');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -50,7 +50,7 @@ export function useDeleteWebhook() {
       void qc.invalidateQueries({ queryKey: KEY });
       toast.success('Webhook silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 

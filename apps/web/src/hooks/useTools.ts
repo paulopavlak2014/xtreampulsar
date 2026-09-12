@@ -66,7 +66,7 @@ export function useSetStreamServer() {
       return res.data.data;
     },
     onSuccess: (data) => {
-      toast.success(`${data.updated} stream güncellendi`);
+      toast.success(`${data.updated} transmissões atualizadas`);
     },
   });
 }

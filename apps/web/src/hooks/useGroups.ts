@@ -62,8 +62,8 @@ export function useUpdateGroup() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, body }: { id: string; body: GroupInput }) => api.patch(`/rbac/groups/${id}`, body),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['rbac', 'groups'] }); toast.success('Grup güncellendi'); },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['rbac', 'groups'] }); toast.success('Grupo atualizado'); },
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -74,7 +74,7 @@ export function useDeleteGroup() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['rbac', 'groups'] }); toast.success('Grup silindi'); },
     onError: (e: unknown) => {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Silme başarısız');
+      toast.error(msg ?? 'Falha ao excluir');
     },
   });
 }

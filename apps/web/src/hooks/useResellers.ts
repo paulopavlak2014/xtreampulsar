@@ -60,11 +60,11 @@ export function useUpdateReseller() {
       api.put<{ success: boolean; data: Reseller }>(`/resellers/${id}`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['resellers'] });
-      toast.success('Reseller güncellendi');
+      toast.success('Revendedor atualizado');
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Güncelleme başarısız');
+      toast.error(msg ?? 'Falha ao atualizar');
     },
   });
 }
@@ -93,7 +93,7 @@ export function useAdminTransferCredits() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-      toast.error(msg ?? 'Transfer başarısız');
+      toast.error(msg ?? 'Falha na transferência');
     },
   });
 }
@@ -106,6 +106,6 @@ export function useDeleteReseller() {
       void qc.invalidateQueries({ queryKey: ['resellers'] });
       toast.success('Reseller silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }

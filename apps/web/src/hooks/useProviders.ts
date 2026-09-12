@@ -130,7 +130,7 @@ export function useCreateProvider() {
       void qc.invalidateQueries({ queryKey: ['providers'] });
       toast.success('Sağlayıcı eklendi');
     },
-    onError: () => toast.error('Ekleme başarısız — URL/kimlik bilgilerini kontrol edin'),
+    onError: () => toast.error('Falha ao adicionar — verifique a URL/credenciais'),
   });
 }
 
@@ -195,9 +195,9 @@ export function useSyncProvider() {
       void qc.invalidateQueries({ queryKey: ['providers'] });
       void qc.invalidateQueries({ queryKey: ['streams'] });
       void qc.invalidateQueries({ queryKey: ['categories'] });
-      toast.success(`Aynalandı: +${r.added} yeni, ${r.updated} güncel, ${r.removed} kaldırıldı`);
+      toast.success(`Espelhado: +${r.added} novos, ${r.updated} atualizados, ${r.removed} removidos`);
     },
-    onError: () => toast.error('Aynalama başarısız'),
+    onError: () => toast.error('Falha no espelhamento'),
   });
 }
 
@@ -208,8 +208,8 @@ export function useUpdateProvider() {
       api.patch(`/providers/${id}`, payload),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['providers'] });
-      toast.success('Ayarlar güncellendi');
+      toast.success('Configurações atualizadas');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }

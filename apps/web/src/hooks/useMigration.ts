@@ -78,7 +78,7 @@ export function useCancelJob() {
       void qc.invalidateQueries({ queryKey: ['migration'] });
       toast.success('İptal edildi');
     },
-    onError: () => toast.error('İptal başarısız'),
+    onError: () => toast.error('Falha ao cancelar'),
   });
 }
 
@@ -97,7 +97,7 @@ export function useUploadDump() {
       );
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['migration'] }),
-    onError: () => toast.error('Yükleme başarısız'),
+    onError: () => toast.error('Falha ao carregar'),
   });
 }
 
@@ -105,7 +105,7 @@ export function usePreviewDump() {
   return useMutation({
     mutationFn: (jobId: string) =>
       api.post<{ success: boolean; data: DumpPreview }>(`/migration/preview/${jobId}`),
-    onError: () => toast.error('Analiz başarısız'),
+    onError: () => toast.error('Falha ao analisar'),
   });
 }
 
@@ -118,7 +118,7 @@ export function useStartDumpImport() {
       void qc.invalidateQueries({ queryKey: ['migration'] });
       toast.success('Import başlatıldı');
     },
-    onError: () => toast.error('Import başarısız'),
+    onError: () => toast.error('Falha na importação'),
   });
 }
 
@@ -156,7 +156,7 @@ export function useImportM3U() {
       void qc.invalidateQueries({ queryKey: ['migration'] });
       toast.success('Import başlatıldı');
     },
-    onError: () => toast.error('Import başarısız'),
+    onError: () => toast.error('Falha na importação'),
   });
 }
 
@@ -177,6 +177,6 @@ export function useImportXtream() {
       void qc.invalidateQueries({ queryKey: ['migration'] });
       toast.success('Xtream import başlatıldı');
     },
-    onError: () => toast.error('Import başarısız'),
+    onError: () => toast.error('Falha na importação'),
   });
 }

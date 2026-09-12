@@ -34,6 +34,6 @@ export function useYouTubeImport() {
       void qc.invalidateQueries({ queryKey: ['streams'] });
       toast.success('YouTube kaynağı yayın olarak eklendi');
     },
-    onError: (e) => toast.error(serverMsg(e, 'İçe aktarma başarısız'), { duration: 8000 }),
+    onError: (e) => toast.error(serverMsg(e, 'Falha na importação'), { duration: 8000 }),
   });
 }

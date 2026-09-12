@@ -41,9 +41,9 @@ export function useUpdateServer() {
       api.patch(`/servers/${id}`, data),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['servers'] });
-      toast.success('Sunucu güncellendi');
+      toast.success('Servidor atualizado');
     },
-    onError: () => toast.error('Güncelleme başarısız'),
+    onError: () => toast.error('Falha ao atualizar'),
   });
 }
 
@@ -55,7 +55,7 @@ export function useDeleteServer() {
       void qc.invalidateQueries({ queryKey: ['servers'] });
       toast.success('Sunucu silindi');
     },
-    onError: () => toast.error('Silme başarısız'),
+    onError: () => toast.error('Falha ao excluir'),
   });
 }
 

@@ -62,10 +62,10 @@ export function useBulkMoveCategory() {
     mutationFn: ({ streamIds, categoryId }: { streamIds: string[]; categoryId: string }) =>
       api.patch('/streams/bulk-move', { streamIds, categoryId }),
     onSuccess: () => {
-      toast.success('Kategori güncellendi');
+      toast.success('Categoria atualizada');
       void qc.invalidateQueries({ queryKey: ['streams'] });
     },
-    onError: () => toast.error('Taşıma başarısız'),
+    onError: () => toast.error('Falha ao mover'),
   });
 }
 

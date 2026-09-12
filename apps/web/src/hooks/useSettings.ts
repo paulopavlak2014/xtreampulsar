@@ -53,19 +53,19 @@ export interface CreditPricingConfig {
 
 export const DEFAULT_CREDIT_PRICING: CreditPricingConfig = {
   durations: [
-    { months: 1,  days: 30,  credits: 1,  label: '1 Ay' },
-    { months: 3,  days: 90,  credits: 3,  label: '3 Ay' },
-    { months: 6,  days: 180, credits: 5,  label: '6 Ay' },
-    { months: 9,  days: 270, credits: 7,  label: '9 Ay' },
-    { months: 12, days: 365, credits: 10, label: '1 Yıl' },
-    { months: 24, days: 730, credits: 18, label: '2 Yıl' },
+    { months: 1,  days: 30,  credits: 1,  label: '1 Mês' },
+    { months: 3,  days: 90,  credits: 3,  label: '3 Meses' },
+    { months: 6,  days: 180, credits: 5,  label: '6 Meses' },
+    { months: 9,  days: 270, credits: 7,  label: '9 Meses' },
+    { months: 12, days: 365, credits: 10, label: '1 Ano' },
+    { months: 24, days: 730, credits: 18, label: '2 Anos' },
   ],
   testDurations: [
-    { hours: 1,  credits: 0, label: '1 Saat' },
-    { hours: 3,  credits: 0, label: '3 Saat' },
-    { hours: 6,  credits: 0, label: '6 Saat' },
-    { hours: 12, credits: 0, label: '12 Saat' },
-    { hours: 24, credits: 0, label: '24 Saat' },
+    { hours: 1,  credits: 0, label: '1 Hora' },
+    { hours: 3,  credits: 0, label: '3 Horas' },
+    { hours: 6,  credits: 0, label: '6 Horas' },
+    { hours: 12, credits: 0, label: '12 Horas' },
+    { hours: 24, credits: 0, label: '24 Horas' },
   ],
   customPricing: { enabled: true, creditsPerDay: 0.1 },
 };
@@ -497,8 +497,8 @@ export function useSaveSettings() {
     onSuccess: () => {
       // Don't invalidate/refetch — the Zustand store already holds the saved state.
       // A refetch would race against the DB write and could overwrite local values.
-      toast.success('Ayarlar kaydedildi');
+      toast.success('Configurações salvas');
     },
-    onError: () => toast.error('Kaydetme başarısız'),
+    onError: () => toast.error('Falha ao salvar'),
   });
 }
