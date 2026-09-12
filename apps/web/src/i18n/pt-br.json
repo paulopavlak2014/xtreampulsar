@@ -2103,7 +2103,8 @@
     "replaceColAfter": "Depois",
     "replaceNoMatch": "Nenhuma transmissão encontrada.",
     "replaceSuccess": "{{count}} transmissões atualizadas.",
-    "replaceUrlError": "Operação falhou."
+    "replaceUrlError": "Operação falhou.",
+    "replaceUrlWarn": "Esta ferramenta altera o banco de dados em lote. O texto de busca é texto simples (não regex) e deve ter pelo menos 3 caracteres. É recomendável fazer um backup antes de aplicar."
   },
   "ui": {
     "processing": "Processando…",
@@ -2376,7 +2377,16 @@
     "minShort": "{{n}} min",
     "minShortBare": "min",
     "hourShort": "h",
-    "empty": "Nenhum dado de assistência neste período."
+    "empty": "Nenhum dado de assistência neste período.",
+    "isRadio": "Estação de rádio (apenas áudio)",
+    "nameOptional": "Nome (opcional)",
+    "typeRadio": "Estações de Rádio",
+    "youtubeHint": "Adiciona um link do YouTube (live ou vídeo) como transmissão. Conteúdo privado/restrito por idade requer cookies em Configurações > Streaming > YouTube.",
+    "youtubeImport": "Importar YouTube",
+    "youtubeImportBtn": "Resolver e Adicionar",
+    "youtubeNamePlaceholder": "Se vazio, o título do vídeo é usado",
+    "youtubeResolving": "Resolvendo…",
+    "youtubeUrl": "URL do YouTube"
   },
   "store": {
     "ordersTitle": "Pedidos da Loja",
@@ -2654,7 +2664,17 @@
       "running": "Espelhando…",
       "button": "Espelhar",
       "statStreams": "{{n}} transmissões",
-      "syncError": "Erro de sincronização: {{msg}}"
+      "syncError": "Erro de sincronização: {{msg}}",
+      "deleteWarn": "\"Excluir\": transmissões anteriormente espelhadas deste provedor, mas que não existem mais no upstream, serão permanentemente removidas.",
+      "isRadio": "Estação de rádio (apenas áudio)",
+      "nameOptional": "Nome (opcional)",
+      "typeRadio": "Estações de Rádio",
+      "youtubeHint": "Adiciona um link do YouTube (live ou vídeo) como transmissão. Conteúdo privado/restrito por idade requer cookies em Configurações > Streaming > YouTube.",
+      "youtubeImport": "Importar YouTube",
+      "youtubeImportBtn": "Resolver e Adicionar",
+      "youtubeNamePlaceholder": "Se vazio, o título do vídeo é usado",
+      "youtubeResolving": "Resolvendo…",
+      "youtubeUrl": "URL do YouTube"
     }
   },
   "widgets": {
