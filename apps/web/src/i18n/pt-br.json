@@ -373,7 +373,7 @@
     "userCount_one": "{{count}} usuário",
     "userCount_other": "{{count}} usuários",
     "connectionUrls": "URLs de Conexão",
-    "noPasswordForUrls": "A senha deste usuário não está armazenada (legado) — altere a senha para revelar as URLs.",
+    "noPasswordForUrls": "Altere a senha do usuário para gerar as URLs de conexão.",
     "owner": "Proprietário",
     "ownerAdmin": "Admin",
     "accessControl": "Controle de Acesso",

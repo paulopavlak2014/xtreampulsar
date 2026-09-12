@@ -25,6 +25,10 @@ import { BulkActionDto } from './dto/bulk-user.dto';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
+  private generatePlaylistToken(): string {
+    return crypto.randomBytes(16).toString('hex');
+  }
+
   constructor(
     private readonly userRepo: UserRepository,
     private readonly prisma: PrismaService,
@@ -48,21 +52,26 @@ export class UserService {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      // Also accept an active playlist token as credential (for token-based stream access)
-      const tokenMatch = await this.prisma.userPlaylist.findFirst({
-        where: {
-          userId: user.id,
-          token: password,
-          isActive: true,
-          OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }],
-        },
-        select: { id: true },
-      });
-      if (!tokenMatch) {
-        this.logger.debug(`[findByCredentials] password mismatch for "${username}" — hash prefix: ${user.password.slice(0, 7)}`);
-        return null;
+      // Also accept playlistToken (for Xtream URL-based access without login password)
+      if (user.playlistToken && password === user.playlistToken) {
+        this.logger.debug(`[findByCredentials] playlistToken match for "${username}"`);
+      } else {
+        // Also accept an active playlist token as credential (for token-based stream access)
+        const tokenMatch = await this.prisma.userPlaylist.findFirst({
+          where: {
+            userId: user.id,
+            token: password,
+            isActive: true,
+            OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }],
+          },
+          select: { id: true },
+        });
+        if (!tokenMatch) {
+          this.logger.debug(`[findByCredentials] password mismatch for "${username}"`);
+          return null;
+        }
+        this.logger.debug(`[findByCredentials] playlist token match for "${username}"`);
       }
-      this.logger.debug(`[findByCredentials] playlist token match for "${username}"`);
     }
 
     this.logger.debug(`[findByCredentials] OK: "${username}" id=${user.id} role=${user.role} status=${user.status}`);
@@ -272,6 +281,7 @@ export class UserService {
         select: {
           id: true, username: true, role: true, status: true,
           maxConnections: true, expiresAt: true, notes: true,
+          playlistToken: true,
           allowedIps: true, allowedCountries: true, blockVpn: true, blockDatacenter: true, hiddenCategoryIds: true, lockDevice: true,
           createdAt: true, resellerId: true,
           // Yalnız gerçekten aktif (taze) bağlantıları say — hayalet "1/1" olmasın.
@@ -328,6 +338,7 @@ export class UserService {
         data: {
           ...rest,
           password: hashed,
+          playlistToken: this.generatePlaylistToken(),
           expiresAt: resolvedExpiresAt,
           maxConnections: resolvedMaxConnections,
           role: (dto.role ?? 'USER') as 'ADMIN' | 'RESELLER' | 'USER',
@@ -371,6 +382,7 @@ export class UserService {
     const data: Record<string, unknown> = { ...updateFields };
     if (dto.password) {
       data.password = await bcrypt.hash(dto.password, 12);
+      data.playlistToken = this.generatePlaylistToken();
     }
     if (dto.expiresAt) {
       data.expiresAt = new Date(dto.expiresAt);
@@ -586,7 +598,7 @@ export class UserService {
         for (const u of users) {
           const newPassword = this.makeRandomPassword();
           const hashed = await bcrypt.hash(newPassword, 12);
-          await this.prisma.user.update({ where: { id: u.id }, data: { password: hashed } });
+          await this.prisma.user.update({ where: { id: u.id }, data: { password: hashed, playlistToken: this.generatePlaylistToken() } });
           results.push({ userId: u.id, username: u.username, newPassword });
         }
         return { affected: users.length, results };
@@ -722,6 +734,7 @@ export class UserService {
       data: {
         username: finalUsername,
         password: hashed,
+        playlistToken: this.generatePlaylistToken(),
         maxConnections: dto.maxConnections,
         expiresAt,
         status: 'ACTIVE',
@@ -784,6 +797,7 @@ export class UserService {
       data: {
         username: finalUsername,
         password: hashed,
+        playlistToken: this.generatePlaylistToken(),
         maxConnections: trialMaxConn,
         expiresAt,
         trialEndsAt: expiresAt,
