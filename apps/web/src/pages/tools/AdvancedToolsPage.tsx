@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
-import { useStreams, useUpdateStreamBackupUrls } from '@/hooks/useStreams';
+import { useStreams, useUpdateStreamBackupUrls, useUpdateStream } from '@/hooks/useStreams';
 import { useFixUsersOutput, useStreamsToJson, useSetStreamServer, useCleanDatabase, useRestartAllStreams, useReencodeVods, useBulkSeriesImport, useSystemStats, useIptvCheck, useFixStreamTypes, useRegroupSeries, useProbeVodDurations, useSanitizeNames, useReplaceUrl, REPLACE_URL_FIELDS, type ReplaceUrlField } from '@/hooks/useTools';
 import { useServers } from '@/hooks/useServers';
 import { useCategories } from '@/hooks/useCategories';
@@ -1179,7 +1179,9 @@ function BulkBackupUrlPanel() {
   const [showM3u, setShowM3u] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(0);
+  const [swapping, setSwapping] = useState(false);
   const updateBackup = useUpdateStreamBackupUrls();
+  const updateStream = useUpdateStream();
 
   const { data: streamsData, isLoading } = useStreams({
     categoryId: categoryId || undefined,
@@ -1235,6 +1237,39 @@ function BulkBackupUrlPanel() {
     toast.success(`${ok} backup(s) salvo(s)`);
   };
 
+  const swapOne = async (stream: any) => {
+    const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
+    if (!currentBackup) { toast.error('Canal não tem URL de backup para inverter'); return; }
+    try {
+      await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
+      await updateStream.mutateAsync({ id: stream.id, data: { sourceUrl: currentBackup } });
+      toast.success(`${stream.name}: fonte invertida`);
+    } catch {
+      toast.error(`Falha ao inverter ${stream.name}`);
+    }
+  };
+
+  const swapAll = async () => {
+    const swappable = streams.filter((s: any) => {
+      const backup = backupMap[s.id] ?? s.backupUrls?.[0] ?? '';
+      return backup && s.primaryUrl;
+    });
+    if (!swappable.length) { toast.error('Nenhum canal com backup para inverter'); return; }
+    if (!confirm(`Inverter fonte principal ↔ backup de ${swappable.length} canais?`)) return;
+    setSwapping(true);
+    let ok = 0;
+    for (const stream of swappable) {
+      const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
+      try {
+        await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
+        await updateStream.mutateAsync({ id: stream.id, data: { sourceUrl: currentBackup } });
+        ok++;
+      } catch {}
+    }
+    setSwapping(false);
+    toast.success(`${ok} canal(is) invertido(s)`);
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -1252,6 +1287,9 @@ function BulkBackupUrlPanel() {
         <input className="input flex-1 min-w-40" placeholder="Buscar canal..." value={search} onChange={e => setSearch(e.target.value)} />
         <button className="btn btn-ghost border-primary/30 text-primary-light text-sm" onClick={() => setShowM3u(!showM3u)}>
           📋 Importar M3U
+        </button>
+        <button className="btn btn-ghost border-amber-500/30 text-amber-400 text-sm" onClick={() => void swapAll()} disabled={swapping}>
+          <RotateCcw className="w-4 h-4" /> Inverter Tudo
         </button>
         <button className="btn btn-primary text-sm" onClick={() => void saveAll()} disabled={saving}>
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
@@ -1287,6 +1325,7 @@ function BulkBackupUrlPanel() {
                 <th className="text-left px-3 py-2 text-muted font-medium">Canal</th>
                 <th className="text-left px-3 py-2 text-muted font-medium">URL Principal</th>
                 <th className="text-left px-3 py-2 text-muted font-medium">URL Backup</th>
+                <th className="w-10"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -1304,10 +1343,19 @@ function BulkBackupUrlPanel() {
                       onChange={e => setBackupMap(p => ({ ...p, [stream.id]: e.target.value }))}
                     />
                   </td>
+                  <td className="px-1">
+                    <button
+                      className="btn btn-ghost p-1 text-amber-400 hover:text-amber-300"
+                      title="Inverter principal ↔ backup"
+                      onClick={() => void swapOne(stream)}
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {streams.length === 0 && (
-                <tr><td colSpan={3} className="text-center py-8 text-muted">Nenhum canal encontrado</td></tr>
+                <tr><td colSpan={4} className="text-center py-8 text-muted">Nenhum canal encontrado</td></tr>
               )}
             </tbody>
           </table>
