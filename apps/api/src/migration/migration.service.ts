@@ -206,7 +206,7 @@ export class MigrationService implements OnModuleInit {
           }
         }
         const existing = await this.prisma.stream.findFirst({
-          where: { primaryUrl: entry.url, categoryId },
+          where: { OR: [{ primaryUrl: entry.url, categoryId }, { name: entry.name, categoryId }] },
           select: { id: true, name: true, tvgId: true, tvgLogo: true },
         });
 
@@ -535,7 +535,7 @@ export class MigrationService implements OnModuleInit {
       const primaryUrl = `${baseUrl}/series/${username}/${password}/${s.series_id}.mkv`;
       let seriesStreamId: string;
       try {
-        const existing = await this.prisma.stream.findFirst({ where: { primaryUrl }, select: { id: true, name: true, tvgLogo: true, categoryId: true } });
+        const existing = await this.prisma.stream.findFirst({ where: { OR: [{ primaryUrl }, { name: s.name, categoryId }] }, select: { id: true, name: true, tvgLogo: true, categoryId: true } });
         if (existing) {
           if (conflictMode === 'MERGE') {
             const patch: Record<string, unknown> = {};
