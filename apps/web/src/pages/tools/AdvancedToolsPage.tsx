@@ -1325,8 +1325,10 @@ function BulkBackupUrlPanel() {
   const swapOne = async (stream: any) => {
     const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
     if (!currentBackup) { toast.error('Canal não tem URL de backup para inverter'); return; }
+    const oldPrimary = stream.primaryUrl;
     try {
       await bulkSwap.mutateAsync([{ id: stream.id, backupUrl: currentBackup }]);
+      setBackupMap((prev) => ({ ...prev, [stream.id]: oldPrimary }));
       toast.success(`${stream.name}: fonte invertida`);
     } catch {
       toast.error(`Falha ao inverter ${stream.name}`);
@@ -1346,6 +1348,13 @@ function BulkBackupUrlPanel() {
         id: s.id,
         backupUrl: backupMap[s.id] ?? s.backupUrls?.[0] ?? '',
       })));
+      setBackupMap((prev) => {
+        const next = { ...prev };
+        for (const s of swappable) {
+          next[s.id] = s.primaryUrl;
+        }
+        return next;
+      });
     } catch {}
     setSwapping(false);
   };
