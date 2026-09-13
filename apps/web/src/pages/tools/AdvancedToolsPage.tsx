@@ -1242,7 +1242,7 @@ function BulkBackupUrlPanel() {
     if (!currentBackup) { toast.error('Canal não tem URL de backup para inverter'); return; }
     try {
       await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
-      await updateStream.mutateAsync({ id: stream.id, data: { sourceUrl: currentBackup } });
+      await updateStream.mutateAsync({ id: stream.id, data: { primaryUrl: currentBackup } });
       toast.success(`${stream.name}: fonte invertida`);
     } catch {
       toast.error(`Falha ao inverter ${stream.name}`);
@@ -1262,7 +1262,7 @@ function BulkBackupUrlPanel() {
       const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
       try {
         await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
-        await updateStream.mutateAsync({ id: stream.id, data: { sourceUrl: currentBackup } });
+        await updateStream.mutateAsync({ id: stream.id, data: { primaryUrl: currentBackup } });
         ok++;
       } catch {}
     }
