@@ -171,10 +171,14 @@ export class MigrationService implements OnModuleInit {
 
       if (!cat) {
         const bouquetId = dto.defaultBouquetId ?? await this.getOrCreateDefaultBouquet();
-        cat = await this.prisma.category.create({
-          data: { name, type, categoryBouquets: { create: { bouquetId } } },
-          select: { id: true },
-        });
+        try {
+          cat = await this.prisma.category.create({
+            data: { name, type, categoryBouquets: { create: { bouquetId } } },
+            select: { id: true },
+          });
+        } catch {
+          cat = await this.prisma.category.findFirst({ where: { name, type }, select: { id: true } });
+        }
       }
 
       categoryMap.set(key, cat.id);
