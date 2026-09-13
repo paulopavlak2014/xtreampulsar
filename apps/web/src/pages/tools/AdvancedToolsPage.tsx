@@ -1317,7 +1317,7 @@ function BulkBackupUrlPanel() {
     setSaving(true);
     try {
       const res = await bulkBackup.mutateAsync(entries);
-      setSaved(res.updated);
+      setSaved(res.data.updated);
     } catch {}
     setSaving(false);
   };

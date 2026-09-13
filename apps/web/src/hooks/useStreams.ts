@@ -142,9 +142,9 @@ export function useUpdateBackupUrlsBulk() {
   return useMutation({
     mutationFn: (entries: { id: string; backupUrls: string[] }[]) =>
       api.put<{ success: boolean; updated: number }>(`/streams/bulk/backup-urls`, { entries }),
-    onSuccess: (data) => {
+    onSuccess: (res) => {
       void qc.invalidateQueries({ queryKey: ['streams'] });
-      toast.success(`${data.updated} backup(s) salvo(s)`);
+      toast.success(`${res.data.updated} backup(s) salvo(s)`);
     },
     onError: () => toast.error('Falha ao salvar'),
   });
@@ -155,9 +155,9 @@ export function useSwapStreamsBulk() {
   return useMutation({
     mutationFn: (entries: { id: string; backupUrl: string }[]) =>
       api.put<{ success: boolean; updated: number }>(`/streams/bulk/swap`, { entries }),
-    onSuccess: (data) => {
+    onSuccess: (res) => {
       void qc.invalidateQueries({ queryKey: ['streams'] });
-      toast.success(`${data.updated} canal(is) invertido(s)`);
+      toast.success(`${res.data.updated} canal(is) invertido(s)`);
     },
     onError: () => toast.error('Falha ao inverter'),
   });
