@@ -1165,6 +1165,94 @@ function SystemStatsPanel() {
       <div className="flex items-center justify-center h-40">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <PanelTitle icon={Activity}>System Stats</PanelTitle>
+        <button
+          onClick={() => void refetch()}
+          disabled={isFetching}
+          className="flex items-center gap-1 text-xs text-muted hover:text-fg transition-colors"
+        >
+          <RefreshCw className={cn('w-3 h-3', isFetching && 'animate-spin')} />
+          {t('tools.refresh')}
+        </button>
+      </div>
+      <PanelDesc>{t('tools.systemStatsDesc')}</PanelDesc>
+
+      {stats ? (
+        <div className="space-y-6 max-w-sm">
+          {/* Gauges */}
+          <div className="space-y-3">
+            <StatGauge label={t('tools.cpuLoad')} value={stats.cpuLoad} />
+            <StatGauge label={t('tools.ramUsage')} value={stats.memUsedPct} />
+          </div>
+
+          {/* Memory detail */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg border border-border bg-surface-2 p-3">
+              <p className="text-xs text-muted mb-0.5">{t('tools.totalRam')}</p>
+              <p className="text-sm font-bold font-mono">
+                {(stats.totalMemMb / 1024).toFixed(1)} GB
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-surface-2 p-3">
+              <p className="text-xs text-muted mb-0.5">{t('tools.freeRam')}</p>
+              <p className="text-sm font-bold font-mono">
+                {(stats.freeMemMb / 1024).toFixed(1)} GB
+              </p>
+            </div>
+          </div>
+
+          {/* Misc stats */}
+          <div className="rounded-lg border border-border bg-surface-2 divide-y divide-border">
+            <div className="flex justify-between items-center px-4 py-3 text-sm">
+              <span className="text-muted">{t('tools.runningWorkers')}</span>
+              <span className="font-mono font-bold">{stats.runningWorkers}</span>
+            </div>
+            <div className="flex justify-between items-center px-4 py-3 text-sm">
+              <span className="text-muted">{t('tools.database')}</span>
+              {stats.dbConnected ? (
+                <span className="flex items-center gap-1 text-success text-xs font-medium">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  {t('tools.connected')}
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-danger text-xs font-medium">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  {t('tools.notConnected')}
+                </span>
+              )}
+            </div>
+            <div className="flex justify-between items-center px-4 py-3 text-sm">
+              <span className="text-muted">Redis</span>
+              {stats.redisConnected ? (
+                <span className="flex items-center gap-1 text-success text-xs font-medium">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  {t('tools.connected')}
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-danger text-xs font-medium">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  {t('tools.notConnected')}
+                </span>
+              )}
+            </div>
+            <div className="flex justify-between items-center px-4 py-3 text-sm">
+              <span className="text-muted">Uptime</span>
+              <span className="font-mono font-bold">
+                {stats.uptimeFormatted ?? formatUptime(stats.uptime, t)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-muted">{t('tools.dataFetchFailed')}</p>
+      )}
+    </div>
   );
 }
 
@@ -1360,95 +1448,7 @@ function BulkBackupUrlPanel() {
             </tbody>
           </table>
         </div>
-      )}
-    </div>
-  );
-}
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <PanelTitle icon={Activity}>System Stats</PanelTitle>
-        <button
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="flex items-center gap-1 text-xs text-muted hover:text-fg transition-colors"
-        >
-          <RefreshCw className={cn('w-3 h-3', isFetching && 'animate-spin')} />
-          {t('tools.refresh')}
-        </button>
-      </div>
-      <PanelDesc>{t('tools.systemStatsDesc')}</PanelDesc>
-
-      {stats ? (
-        <div className="space-y-6 max-w-sm">
-          {/* Gauges */}
-          <div className="space-y-3">
-            <StatGauge label={t('tools.cpuLoad')} value={stats.cpuLoad} />
-            <StatGauge label={t('tools.ramUsage')} value={stats.memUsedPct} />
-          </div>
-
-          {/* Memory detail */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-border bg-surface-2 p-3">
-              <p className="text-xs text-muted mb-0.5">{t('tools.totalRam')}</p>
-              <p className="text-sm font-bold font-mono">
-                {(stats.totalMemMb / 1024).toFixed(1)} GB
-              </p>
-            </div>
-            <div className="rounded-lg border border-border bg-surface-2 p-3">
-              <p className="text-xs text-muted mb-0.5">{t('tools.freeRam')}</p>
-              <p className="text-sm font-bold font-mono">
-                {(stats.freeMemMb / 1024).toFixed(1)} GB
-              </p>
-            </div>
-          </div>
-
-          {/* Misc stats */}
-          <div className="rounded-lg border border-border bg-surface-2 divide-y divide-border">
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-muted">{t('tools.runningWorkers')}</span>
-              <span className="font-mono font-bold">{stats.runningWorkers}</span>
-            </div>
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-muted">{t('tools.database')}</span>
-              {stats.dbConnected ? (
-                <span className="flex items-center gap-1 text-success text-xs font-medium">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  {t('tools.connected')}
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 text-danger text-xs font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  {t('tools.notConnected')}
-                </span>
-              )}
-            </div>
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-muted">Redis</span>
-              {stats.redisConnected ? (
-                <span className="flex items-center gap-1 text-success text-xs font-medium">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  {t('tools.connected')}
-                </span>
-              ) : (
-                <span className="flex items-center gap-1 text-danger text-xs font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  {t('tools.notConnected')}
-                </span>
-              )}
-            </div>
-            <div className="flex justify-between items-center px-4 py-3 text-sm">
-              <span className="text-muted">Uptime</span>
-              <span className="font-mono font-bold">
-                {stats.uptimeFormatted ?? formatUptime(stats.uptime, t)}
-              </span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <p className="text-sm text-muted">{t('tools.dataFetchFailed')}</p>
-      )}
+)}
     </div>
   );
 }
