@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
-import { useStreams, useUpdateStreamBackupUrls, useUpdateStream } from '@/hooks/useStreams';
+import { useStreams, useUpdateBackupUrlsBulk, useSwapStreamsBulk } from '@/hooks/useStreams';
 import { useFixUsersOutput, useStreamsToJson, useSetStreamServer, useCleanDatabase, useRestartAllStreams, useReencodeVods, useBulkSeriesImport, useSystemStats, useIptvCheck, useFixStreamTypes, useRegroupSeries, useProbeVodDurations, useSanitizeNames, useReplaceUrl, REPLACE_URL_FIELDS, type ReplaceUrlField } from '@/hooks/useTools';
 import { useServers } from '@/hooks/useServers';
 import { useCategories } from '@/hooks/useCategories';
@@ -1268,8 +1268,8 @@ function BulkBackupUrlPanel() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(0);
   const [swapping, setSwapping] = useState(false);
-  const updateBackup = useUpdateStreamBackupUrls();
-  const updateStream = useUpdateStream();
+  const bulkBackup = useUpdateBackupUrlsBulk();
+  const bulkSwap = useSwapStreamsBulk();
 
   const { data: streamsData, isLoading } = useStreams({
     categoryId: categoryId || undefined,
@@ -1310,27 +1310,23 @@ function BulkBackupUrlPanel() {
   };
 
   const saveAll = async () => {
-    const entries = Object.entries(backupMap).filter(([, url]) => url.trim());
+    const entries = Object.entries(backupMap)
+      .filter(([, url]) => url.trim())
+      .map(([id, url]) => ({ id, backupUrls: [url.trim()] }));
     if (!entries.length) { toast.error('Nenhuma URL de backup para salvar'); return; }
     setSaving(true);
-    let ok = 0;
-    for (const [id, url] of entries) {
-      try {
-        await updateBackup.mutateAsync({ id, backupUrls: [url.trim()] });
-        ok++;
-      } catch {}
-    }
+    try {
+      const res = await bulkBackup.mutateAsync(entries);
+      setSaved(res.updated);
+    } catch {}
     setSaving(false);
-    setSaved(ok);
-    toast.success(`${ok} backup(s) salvo(s)`);
   };
 
   const swapOne = async (stream: any) => {
     const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
     if (!currentBackup) { toast.error('Canal não tem URL de backup para inverter'); return; }
     try {
-      await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
-      await updateStream.mutateAsync({ id: stream.id, data: { primaryUrl: currentBackup } });
+      await bulkSwap.mutateAsync([{ id: stream.id, backupUrl: currentBackup }]);
       toast.success(`${stream.name}: fonte invertida`);
     } catch {
       toast.error(`Falha ao inverter ${stream.name}`);
@@ -1345,17 +1341,13 @@ function BulkBackupUrlPanel() {
     if (!swappable.length) { toast.error('Nenhum canal com backup para inverter'); return; }
     if (!confirm(`Inverter fonte principal ↔ backup de ${swappable.length} canais?`)) return;
     setSwapping(true);
-    let ok = 0;
-    for (const stream of swappable) {
-      const currentBackup = backupMap[stream.id] ?? stream.backupUrls?.[0] ?? '';
-      try {
-        await updateBackup.mutateAsync({ id: stream.id, backupUrls: [stream.primaryUrl] });
-        await updateStream.mutateAsync({ id: stream.id, data: { primaryUrl: currentBackup } });
-        ok++;
-      } catch {}
-    }
+    try {
+      await bulkSwap.mutateAsync(swappable.map((s: any) => ({
+        id: s.id,
+        backupUrl: backupMap[s.id] ?? s.backupUrls?.[0] ?? '',
+      })));
+    } catch {}
     setSwapping(false);
-    toast.success(`${ok} canal(is) invertido(s)`);
   };
 
   return (

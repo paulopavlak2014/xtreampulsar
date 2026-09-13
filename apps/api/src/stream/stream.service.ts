@@ -213,6 +213,39 @@ export class StreamService {
     await this.prisma.stream.update({ where: { id }, data: { backupUrls } });
   }
 
+  async updateBackupUrlsBulk(entries: { id: string; backupUrls: string[] }[]): Promise<{ updated: number }> {
+    let updated = 0;
+    for (const entry of entries) {
+      if (!entry?.id || !Array.isArray(entry.backupUrls)) continue;
+      try {
+        await this.prisma.stream.update({ where: { id: entry.id }, data: { backupUrls: entry.backupUrls } });
+        updated++;
+      } catch {
+        // continua com os demais
+      }
+    }
+    return { updated };
+  }
+
+  async swapStreamsBulk(entries: { id: string; backupUrl: string }[]): Promise<{ updated: number }> {
+    let updated = 0;
+    for (const entry of entries) {
+      if (!entry?.id || !entry.backupUrl) continue;
+      try {
+        const stream = await this.prisma.stream.findUnique({ where: { id: entry.id }, select: { primaryUrl: true } });
+        if (!stream) continue;
+        await this.prisma.stream.update({
+          where: { id: entry.id },
+          data: { backupUrls: [stream.primaryUrl], primaryUrl: entry.backupUrl },
+        });
+        updated++;
+      } catch {
+        // continua com os demais
+      }
+    }
+    return { updated };
+  }
+
   private probeUrl(url: string, timeoutMs = 3000): Promise<boolean> {
     return new Promise((resolve) => {
       if (!url.startsWith('http://') && !url.startsWith('https://')) {

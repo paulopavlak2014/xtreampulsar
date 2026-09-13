@@ -341,6 +341,28 @@ export class StreamController {
     return this.qualityService.probeTracks(id);
   }
 
+  @Put('bulk/backup-urls')
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermission('streams.edit')
+  async updateBackupUrlsBulk(
+    @Body('entries') entries: { id: string; backupUrls: string[] }[],
+  ) {
+    const result = await this.streamService.updateBackupUrlsBulk(entries ?? []);
+    return { success: true, ...result };
+  }
+
+  @Put('bulk/swap')
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @RequirePermission('streams.edit')
+  async swapStreamsBulk(
+    @Body('entries') entries: { id: string; backupUrl: string }[],
+  ) {
+    const result = await this.streamService.swapStreamsBulk(entries ?? []);
+    return { success: true, ...result };
+  }
+
   @Put(':id/backup-urls')
   @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
