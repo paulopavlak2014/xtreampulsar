@@ -165,7 +165,7 @@ export class MigrationService implements OnModuleInit {
       if (categoryMap.has(key)) return categoryMap.get(key)!;
 
       let cat = await this.prisma.category.findFirst({
-        where: { name, type },
+        where: { name: { equals: name.trim(), mode: 'insensitive' }, type },
         select: { id: true },
       });
 
@@ -173,11 +173,11 @@ export class MigrationService implements OnModuleInit {
         const bouquetId = dto.defaultBouquetId ?? await this.getOrCreateDefaultBouquet();
         try {
           cat = await this.prisma.category.create({
-            data: { name, type, categoryBouquets: { create: { bouquetId } } },
+            data: { name: name.trim(), type, categoryBouquets: { create: { bouquetId } } },
             select: { id: true },
           });
         } catch {
-          cat = await this.prisma.category.findFirst({ where: { name, type }, select: { id: true } });
+          cat = await this.prisma.category.findFirst({ where: { name: { equals: name.trim(), mode: 'insensitive' }, type }, select: { id: true } });
         }
       }
 
@@ -410,7 +410,7 @@ export class MigrationService implements OnModuleInit {
 
     for (const cat of cats) {
       const existing = await this.prisma.category.findFirst({
-        where: { name: cat.category_name, type },
+        where: { name: { equals: cat.category_name.trim(), mode: 'insensitive' }, type },
         select: { id: true },
       });
 
@@ -418,7 +418,7 @@ export class MigrationService implements OnModuleInit {
         map.set(cat.category_id, existing.id);
       } else {
         const created = await this.prisma.category.create({
-          data: { name: cat.category_name, type, categoryBouquets: { create: { bouquetId: defaultBouquetId } } },
+          data: { name: cat.category_name.trim(), type, categoryBouquets: { create: { bouquetId: defaultBouquetId } } },
           select: { id: true },
         });
         map.set(cat.category_id, created.id);

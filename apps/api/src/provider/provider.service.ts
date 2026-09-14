@@ -293,13 +293,16 @@ export class ProviderService {
     let processed = 0;
 
     const ensureCategory = async (name: string, type: UpType): Promise<string> => {
-      const key = `${type}:${name}`;
+      const key = `${type}:${name.trim()}`;
       const cached = catCache.get(key);
       if (cached) return cached;
-      const found = await this.prisma.category.findFirst({ where: { name, type }, select: { id: true } });
+      const found = await this.prisma.category.findFirst({
+        where: { name: { equals: name.trim(), mode: 'insensitive' }, type },
+        select: { id: true },
+      });
       const cid = found
         ? found.id
-        : (await this.prisma.category.create({ data: { name, type, categoryBouquets: { create: { bouquetId: bouquetId as string } } }, select: { id: true } })).id;
+        : (await this.prisma.category.create({ data: { name: name.trim(), type, categoryBouquets: { create: { bouquetId: bouquetId as string } } }, select: { id: true } })).id;
       catCache.set(key, cid);
       return cid;
     };
