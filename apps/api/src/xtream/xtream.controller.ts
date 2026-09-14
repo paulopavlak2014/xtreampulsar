@@ -976,7 +976,7 @@ export class XtreamController {
         onHeartbeat: (delta) => {
           void this.prisma.connection.updateMany({
             where: { userId: user.id, streamId: streamRecord.id, endedAt: null },
-            data: { bytesOut: { increment: BigInt(delta) } },
+            data: { bytesOut: { increment: BigInt(delta) }, updatedAt: new Date() },
           }).catch(() => {});
         },
         onEnd: (bytes) => {
