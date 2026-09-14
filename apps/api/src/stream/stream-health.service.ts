@@ -31,13 +31,20 @@ export class StreamHealthService {
     private readonly notificationService: NotificationService,
   ) {}
 
+  /** Tek seferde yoklanacak maksimum yayin sayisi. 30k+ kanal ile tam tarama
+   *  50 dk'yi asiyor ve cron hic bitmiyor (CPU %300+). En eski kontrol edilen
+   *  yayinlardan baslayarak bu kadarini yokla; kalanlar sonraki tetiklemelere kalir. */
+  private readonly MAX_PER_RUN = Number(process.env.HEALTH_MAX_PER_RUN ?? 1500);
+
   @Cron('*/30 * * * *')
   async checkAllStreams(): Promise<void> {
     const streams = await this.prisma.stream.findMany({
       where: { isActive: true, category: { type: 'LIVE' } },
       select: { id: true },
+      orderBy: { lastHealthCheck: { sort: 'asc', nulls: 'first' } },
+      take: this.MAX_PER_RUN,
     });
-    const batches = this.chunk(streams, 50);
+    const batches = this.chunk(streams, 20);
     for (const batch of batches) {
       await Promise.allSettled(batch.map((s) => this.checkStream(s.id)));
     }
