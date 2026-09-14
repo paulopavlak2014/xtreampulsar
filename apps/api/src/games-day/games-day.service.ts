@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as https from 'https';
 
 const BOUQUET_ID = 'cmu15m2xh3k5rgmxygfy7qhel';
-const CATEGORY_NAME = 'JOGOS DO DIA';
+const CATEGORY_NAME = 'CANAIS | JOGOS DO DIA';
 const KICKOFF_API_KEY = 'ft_apliativ_cd6e57aafba56e4cf8708269313c04a87c225dbb';
 
 const ALLOWED_QUALITIES = ['FHD', 'HD'];
