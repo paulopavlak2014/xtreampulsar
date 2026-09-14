@@ -59,6 +59,7 @@ import { CatchupModule } from './catchup/catchup.module';
 import { RbacModule } from './rbac/rbac.module';
 import { FeaturedModule } from './featured/featured.module';
 import { YouTubeModule } from './youtube/youtube.module';
+import { GamesDayModule } from './games-day/games-day.module';
 
 @Module({
   imports: [
@@ -116,6 +117,7 @@ import { YouTubeModule } from './youtube/youtube.module';
     RbacModule,
     FeaturedModule,
     YouTubeModule,
+    GamesDayModule,
   ],
   controllers: [AppController],
   providers: [
