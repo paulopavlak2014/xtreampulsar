@@ -76,10 +76,10 @@ export class StreamHealthService {
     let errorMessage: string | undefined;
 
     try {
-      const { ok, statusCode } = await this.probeSource(url, 5000, stream);
+      const { ok, statusCode } = await this.probeSource(url, 3000, stream);
       responseTime = Date.now() - start;
       if (ok) {
-        status = responseTime > 3000 ? 'degraded' : 'up';
+        status = responseTime > 2000 ? 'degraded' : 'up';
       } else {
         status = 'down';
         errorMessage = `HTTP ${statusCode ?? 0}`;
