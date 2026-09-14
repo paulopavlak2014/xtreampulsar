@@ -33,7 +33,7 @@ export class EventsGateway {
 
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   async broadcastDashboard(): Promise<void> {
     try {
       const data = await this.analyticsService.getDashboard();
