@@ -37,7 +37,7 @@ export class GamesDayService {
         });
       });
       req.on('error', reject);
-      req.setTimeout(15000, () => {
+      req.setTimeout(30000, () => {
         req.destroy();
         reject(new Error('timeout'));
       });
