@@ -1,8 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+
+const DEFAULT_LEAGUES = [
+  { leagueId: 71,  leagueName: 'Brasileirão Série A',    channels: ['SPORTV', 'PREMIERE', 'GOAT TV', 'CAZÉ TV', 'AMAZON PRIME'] },
+  { leagueId: 72,  leagueName: 'Brasileirão Série B',    channels: ['ESPN', 'DISNEY+', 'SPORTYNET', 'REDE TV!', 'GOAT TV'] },
+  { leagueId: 73,  leagueName: 'Copa do Brasil',         channels: ['SPORTV', 'PREMIERE', 'GOAT TV', 'AMAZON PRIME'] },
+  { leagueId: 13,  leagueName: 'Brasileirão Série C',    channels: ['SPORTV', 'PREMIERE', 'BAND SPORTS'] },
+  { leagueId: 11,  leagueName: 'Copa Libertadores',      channels: ['SPORTV', 'PREMIERE', 'ESPN', 'GOAT TV', 'AMAZON PRIME'] },
+  { leagueId: 12,  leagueName: 'Copa Sul-Americana',     channels: ['ESPN', 'DISNEY+', 'GOAT TV'] },
+  { leagueId: 2,   leagueName: 'Champions League',       channels: ['TNT', 'HBO MAX', 'SBT'] },
+  { leagueId: 3,   leagueName: 'Europa League',          channels: ['TNT', 'HBO MAX'] },
+  { leagueId: 848, leagueName: 'Conference League',      channels: ['TNT', 'HBO MAX'] },
+  { leagueId: 39,  leagueName: 'Premier League',         channels: ['ESPN', 'DISNEY+'] },
+  { leagueId: 140, leagueName: 'La Liga',                channels: ['ESPN', 'DISNEY+', 'CAZÉ TV'] },
+  { leagueId: 135, leagueName: 'Serie A Italiana',       channels: ['ESPN', 'DISNEY+', 'SPORTYNET', 'DAZN'] },
+  { leagueId: 78,  leagueName: 'Bundesliga',             channels: ['SPORTYNET', 'BAND SPORTS'] },
+  { leagueId: 61,  leagueName: 'Ligue 1',                channels: ['ESPN', 'DISNEY+', 'DAZN'] },
+];
 
 @Injectable()
 export class GamesDayConfigService {
+  private readonly logger = new Logger(GamesDayConfigService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getConfig() {
@@ -15,6 +34,27 @@ export class GamesDayConfigService {
         include: { leagues: { orderBy: { sortOrder: 'asc' } } },
       });
     }
+
+    if (config.leagues.length === 0) {
+      this.logger.log('Nenhuma liga configurada — criando ligas padrão...');
+      for (let i = 0; i < DEFAULT_LEAGUES.length; i++) {
+        await this.prisma.gamesDayLeague.create({
+          data: {
+            configId: config.id,
+            leagueId: DEFAULT_LEAGUES[i].leagueId,
+            leagueName: DEFAULT_LEAGUES[i].leagueName,
+            channels: DEFAULT_LEAGUES[i].channels,
+            sortOrder: i + 1,
+          },
+        });
+      }
+      config = await this.prisma.gamesDayConfig.findFirst({
+        where: { id: config.id },
+        include: { leagues: { orderBy: { sortOrder: 'asc' } } },
+      });
+      this.logger.log(`${DEFAULT_LEAGUES.length} ligas padrão criadas.`);
+    }
+
     return config;
   }
 
