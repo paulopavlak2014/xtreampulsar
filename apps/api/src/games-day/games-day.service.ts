@@ -7,6 +7,8 @@ const BOUQUET_ID = 'cmu15m2xh3k5rgmxygfy7qhel';
 const CATEGORY_NAME = 'JOGOS DO DIA';
 const KICKOFF_API_KEY = 'ft_apliativ_cd6e57aafba56e4cf8708269313c04a87c225dbb';
 
+const ALLOWED_QUALITIES = ['FHD', 'HD'];
+
 const LEAGUE_CHANNEL_MAP: Record<number, string[]> = {
   71:  ['SPORTV', 'PREMIERE', 'GOAT TV', 'CAZÉ TV', 'AMAZON PRIME'],
   72:  ['ESPN', 'DISNEY+', 'SPORTYNET', 'REDE TV!', 'GOAT TV'],
@@ -74,6 +76,11 @@ export class GamesDayService {
     return brt.toISOString().split('T')[0];
   }
 
+  private getQuality(name: string): string | null {
+    const match = name.match(/\b(4K|FHD|HD|SD)\b/i);
+    return match ? match[1].toUpperCase() : null;
+  }
+
   async syncGamesDay(): Promise<{ created: number; skipped: number; games: number }> {
     this.logger.log('Iniciando sincronização de Jogos do Dia...');
 
@@ -133,9 +140,11 @@ export class GamesDayService {
         'https://images.icon-icons.com/861/PNG/512/Soccer_icon-icons.com_67819.png';
 
       for (const keyword of channelKeywords) {
-        const matchingStreams = allStreams.filter((s) =>
-          s.name.toUpperCase().includes(keyword.toUpperCase()),
-        );
+        const matchingStreams = allStreams.filter((s) => {
+          if (!s.name.toUpperCase().includes(keyword.toUpperCase())) return false;
+          const quality = this.getQuality(s.name);
+          return quality && ALLOWED_QUALITIES.includes(quality);
+        });
 
         if (matchingStreams.length === 0) {
           this.logger.debug(`Nenhum canal encontrado para keyword "${keyword}"`);
@@ -144,8 +153,7 @@ export class GamesDayService {
         }
 
         for (const stream of matchingStreams) {
-          const quality =
-            stream.name.match(/\b(4K|FHD|HD|SD)\b/i)?.[1]?.toUpperCase() ?? 'HD';
+          const quality = this.getQuality(stream.name) ?? 'HD';
 
           const streamName = `${home} x ${away} - ${time} - ${quality} (${keyword})`;
 
