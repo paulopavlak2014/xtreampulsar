@@ -31,7 +31,7 @@ export class StreamHealthService {
     private readonly notificationService: NotificationService,
   ) {}
 
-  @Cron('*/2 * * * *')
+  @Cron('*/30 * * * *')
   async checkAllStreams(): Promise<void> {
     const streams = await this.prisma.stream.findMany({
       where: { isActive: true, category: { type: 'LIVE' } },
