@@ -4,14 +4,10 @@ import {
   Gamepad2,
   Plus,
   Trash2,
-  Save,
   Loader2,
   Play,
-  ToggleLeft,
-  ToggleRight,
   GripVertical,
   Clock,
-  Tag,
   Tv,
   Zap,
   ChevronDown,
@@ -30,6 +26,7 @@ import {
   useUpdateGamesDayLeague,
   useRemoveGamesDayLeague,
   useSyncGamesDay,
+  useSportsChannels,
 } from '@/hooks/useGamesDay';
 import { useBouquets } from '@/hooks/useBouquets';
 
@@ -114,7 +111,7 @@ function LeagueRow({
   const channelsPreview = league.channels.slice(0, 3).join(', ') + (league.channels.length > 3 ? ` +${league.channels.length - 3}` : '');
 
   return (
-    <div className={cn('border rounded-lg transition-colors', league.isActive ? 'border-border bg-surface-hover' : 'border-border opacity-50')}>
+    <div className={cn('border rounded-lg transition-colors', league.isActive ? 'border-border bg-surface-2' : 'border-border opacity-50')}>
       <div className="flex items-center gap-3 px-3 py-2">
         <button onClick={() => setExpanded(!expanded)} className="text-muted hover:text-slate-300">
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -122,7 +119,7 @@ function LeagueRow({
         <GripVertical className="w-4 h-4 text-muted cursor-grab" />
 
         {editing ? (
-          <input value={name} onChange={(e) => setName(e.target.value)} className="input-field flex-1 text-sm" autoFocus />
+          <input value={name} onChange={(e) => setName(e.target.value)} className="input flex-1 text-sm" autoFocus />
         ) : (
           <span className="text-sm font-medium text-slate-200 flex-1">{league.leagueName}</span>
         )}
@@ -153,7 +150,7 @@ function LeagueRow({
             <input
               value={channelsText}
               onChange={(e) => setChannelsText(e.target.value)}
-              className="input-field w-full text-sm"
+              className="input w-full text-sm"
               placeholder="SPORTV, PREMIERE, ESPN"
             />
           </div>
@@ -171,6 +168,7 @@ export function GamesDayConfigPage() {
   const { t } = useTranslation();
   const { data: config, isLoading } = useGamesDayConfig();
   const { data: bouquets = [] } = useBouquets();
+  const { data: sportsChannels = [] } = useSportsChannels();
   const updateConfig = useUpdateGamesDayConfig();
   const addLeague = useAddGamesDayLeague();
   const updateLeague = useUpdateGamesDayLeague();
@@ -181,6 +179,8 @@ export function GamesDayConfigPage() {
   const [newLeagueId, setNewLeagueId] = useState('');
   const [newLeagueName, setNewLeagueName] = useState('');
   const [newLeagueChannels, setNewLeagueChannels] = useState('');
+  const [showChannels, setShowChannels] = useState(false);
+  const [channelSearch, setChannelSearch] = useState('');
 
   if (isLoading || !config) {
     return (
@@ -215,6 +215,16 @@ export function GamesDayConfigPage() {
     }
     addLeague.mutate({ leagueId: preset.leagueId, leagueName: preset.leagueName, channels: [] });
   };
+
+  const toggleChannel = (name: string) => {
+    const current = config.excludedChannels ?? [];
+    const next = current.includes(name) ? current.filter((x) => x !== name) : [...current, name];
+    updateConfig.mutate({ excludedChannels: next });
+  };
+
+  const filteredChannels = sportsChannels.filter((c) =>
+    c.name.toLowerCase().includes(channelSearch.toLowerCase())
+  );
 
   const toggleQuality = (q: string) => {
     const current = config.allowedQualities;
@@ -278,7 +288,7 @@ export function GamesDayConfigPage() {
             <input
               value={config.categoryName}
               onChange={(e) => updateConfig.mutate({ categoryName: e.target.value })}
-              className="input-field w-full"
+              className="input w-full"
             />
           </Field>
 
@@ -286,7 +296,7 @@ export function GamesDayConfigPage() {
             <select
               value={config.bouquetId ?? ''}
               onChange={(e) => updateConfig.mutate({ bouquetId: e.target.value || null })}
-              className="input-field w-full"
+              className="input w-full"
             >
               <option value="">Nenhum</option>
               {bouquets.map((b: any) => (
@@ -304,7 +314,7 @@ export function GamesDayConfigPage() {
                 max={23}
                 value={config.syncHour}
                 onChange={(e) => updateConfig.mutate({ syncHour: parseInt(e.target.value) || 0 })}
-                className="input-field w-20 text-center"
+                className="input w-20 text-center"
               />
               <span className="text-sm text-muted">:00 BRT</span>
             </div>
@@ -337,12 +347,49 @@ export function GamesDayConfigPage() {
                 max={10}
                 value={config.maxChannelsPerMatch}
                 onChange={(e) => updateConfig.mutate({ maxChannelsPerMatch: parseInt(e.target.value) || 2 })}
-                className="input-field w-20 text-center"
+                className="input w-20 text-center"
               />
               <span className="text-sm text-muted">canais por keyword</span>
             </div>
           </Field>
         </div>
+      </Section>
+
+      {/* Sports Channels */}
+      <Section title={`Canais de Esporte Detectados (${sportsChannels.length})`} icon={Tv}>
+        <button onClick={() => setShowChannels(!showChannels)} className="flex items-center gap-2 text-sm text-muted hover:text-slate-300">
+          {showChannels ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {showChannels ? 'Ocultar lista' : 'Mostrar lista — marque/desmarque os canais'}
+        </button>
+
+        {showChannels && (
+          <div className="space-y-2">
+            <input
+              value={channelSearch}
+              onChange={(e) => setChannelSearch(e.target.value)}
+              placeholder="Buscar canal..."
+              className="input w-full text-sm"
+            />
+            <div className="max-h-72 overflow-y-auto space-y-1 border border-border rounded-lg p-2">
+              {filteredChannels.length === 0 && (
+                <p className="text-center text-muted text-sm py-4">Nenhum canal de esporte encontrado.</p>
+              )}
+              {filteredChannels.map((ch) => (
+                <label
+                  key={ch.name}
+                  className={cn(
+                    'flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-sm transition-colors',
+                    ch.excluded ? 'opacity-50 line-through' : 'text-slate-200 hover:bg-surface-2'
+                  )}
+                >
+                  <input type="checkbox" checked={!ch.excluded} onChange={() => toggleChannel(ch.name)} className="accent-primary" />
+                  {ch.name}
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-muted">Canais riscados serão ignorados na geração.</p>
+          </div>
+        )}
       </Section>
 
       {/* Leagues */}
@@ -379,7 +426,7 @@ export function GamesDayConfigPage() {
                     type="number"
                     value={newLeagueId}
                     onChange={(e) => setNewLeagueId(e.target.value)}
-                    className="input-field w-full text-sm"
+                    className="input w-full text-sm"
                     placeholder="71"
                   />
                 </div>
@@ -388,7 +435,7 @@ export function GamesDayConfigPage() {
                   <input
                     value={newLeagueName}
                     onChange={(e) => setNewLeagueName(e.target.value)}
-                    className="input-field w-full text-sm"
+                    className="input w-full text-sm"
                     placeholder="Brasileirão Série A"
                   />
                 </div>
@@ -397,7 +444,7 @@ export function GamesDayConfigPage() {
                   <input
                     value={newLeagueChannels}
                     onChange={(e) => setNewLeagueChannels(e.target.value)}
-                    className="input-field w-full text-sm"
+                    className="input w-full text-sm"
                     placeholder="SPORTV, PREMIERE"
                   />
                 </div>
@@ -430,7 +477,7 @@ export function GamesDayConfigPage() {
                   <button
                     key={preset.leagueId}
                     onClick={() => handleQuickAdd(preset)}
-                    className="flex items-center gap-1 px-2 py-1 bg-surface-hover border border-border rounded text-xs text-slate-300 hover:border-primary hover:text-primary transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 bg-surface-2 border border-border rounded text-xs text-slate-300 hover:border-primary hover:text-primary transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     {preset.leagueName}

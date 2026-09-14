@@ -1561,6 +1561,7 @@ model GamesDayConfig {
   bouquetId           String?
   allowedQualities    String[] @default(["FHD", "HD"])
   maxChannelsPerMatch Int      @default(2)
+  excludedChannels    String[] @default([]) // Canais removidos manualmente (nomes exatos)
   syncHour            Int      @default(6) // Hora BRT (0-23)
   isActive            Boolean  @default(true)
   createdAt           DateTime @default(now())

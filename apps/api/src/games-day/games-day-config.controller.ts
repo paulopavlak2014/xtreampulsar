@@ -11,8 +11,14 @@ export class GamesDayConfigController {
     return { success: true, data };
   }
 
+  @Get('sports-channels')
+  async getSportsChannels() {
+    const data = await this.configService.getSportsChannels();
+    return { success: true, data };
+  }
+
   @Put()
-  async updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; syncHour?: number; isActive?: boolean }) {
+  async updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; maxChannelsPerMatch?: number; syncHour?: number; isActive?: boolean }) {
     const data = await this.configService.updateConfig(body);
     return { success: true, data };
   }

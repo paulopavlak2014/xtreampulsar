@@ -7,6 +7,7 @@ CREATE TABLE "games_day_config" (
     "bouquetId" TEXT,
     "allowedQualities" TEXT[] NOT NULL DEFAULT ARRAY['FHD','HD']::TEXT[],
     "maxChannelsPerMatch" INTEGER NOT NULL DEFAULT 2,
+    "excludedChannels" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
     "syncHour" INTEGER NOT NULL DEFAULT 6,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

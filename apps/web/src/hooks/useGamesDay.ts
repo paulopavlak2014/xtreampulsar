@@ -18,11 +18,17 @@ export interface GamesDayConfig {
   bouquetId: string | null;
   allowedQualities: string[];
   maxChannelsPerMatch: number;
+  excludedChannels: string[];
   syncHour: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   leagues: GamesDayLeague[];
+}
+
+export interface SportsChannel {
+  name: string;
+  excluded: boolean;
 }
 
 export function useGamesDayConfig() {
@@ -35,10 +41,20 @@ export function useGamesDayConfig() {
   });
 }
 
+export function useSportsChannels() {
+  return useQuery({
+    queryKey: ['games-day-sports-channels'],
+    queryFn: async () => {
+      const { data } = await api.get<{ success: boolean; data: SportsChannel[] }>('/games-day-config/sports-channels');
+      return data.data;
+    },
+  });
+}
+
 export function useUpdateGamesDayConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'maxChannelsPerMatch' | 'syncHour' | 'isActive'>>) => {
+    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'maxChannelsPerMatch' | 'excludedChannels' | 'syncHour' | 'isActive'>>) => {
       const res = await api.put<{ success: boolean; data: GamesDayConfig }>('/games-day-config', data);
       return res.data.data;
     },

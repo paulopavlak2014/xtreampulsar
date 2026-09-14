@@ -18,6 +18,14 @@ const DEFAULT_LEAGUES = [
   { leagueId: 61,  leagueName: 'Ligue 1',                channels: ['ESPN', 'DISNEY+', 'DAZN'] },
 ];
 
+// Palavras-chave que identificam canais de esporte (para a lista de canais disponíveis)
+const SPORTS_KEYWORDS = [
+  'SPORTV', 'PREMIERE', 'ESPN', 'GOAT TV', 'CAZÉ TV', 'AMAZON PRIME',
+  'SPORTYNET', 'REDE TV!', 'BAND SPORTS', 'BAND SPORT', 'TNT SPORTS',
+  'HBO MAX', 'DAZN', 'CONMEBOL', 'UFC', 'NBA', 'NFL', 'FUTEBOL',
+  'DISNEY+', 'TNT ', 'COMBATE', 'ESPAÑOL', 'MOVISTAR', 'DGO', 'DOW MEDIA',
+];
+
 @Injectable()
 export class GamesDayConfigService {
   private readonly logger = new Logger(GamesDayConfigService.name);
@@ -63,6 +71,7 @@ export class GamesDayConfigService {
     bouquetId?: string | null;
     allowedQualities?: string[];
     maxChannelsPerMatch?: number;
+    excludedChannels?: string[];
     syncHour?: number;
     isActive?: boolean;
   }) {
@@ -113,5 +122,34 @@ export class GamesDayConfigService {
   async getAllowedQualities(): Promise<string[]> {
     const config = await this.getConfig();
     return config.allowedQualities;
+  }
+
+  // Detecta canais de esporte no painel (para que o usuário possa incluir/excluir)
+  async getSportsChannels(): Promise<{ name: string; excluded: boolean }[]> {
+    const config = await this.getConfig();
+    const streams = await this.prisma.stream.findMany({
+      where: { isActive: true },
+      select: { name: true },
+      orderBy: { name: 'asc' },
+    });
+
+    const map = new Map<string, boolean>();
+    for (const s of streams) {
+      const upper = s.name.toUpperCase();
+      if (!SPORTS_KEYWORDS.some((k) => upper.includes(k))) continue;
+      // Remove sufixo de qualidade e número (ex: "SPORTV 2 HD" → "SPORTV")
+      const base = s.name
+        .replace(/\s+H264\b.*$/i, '')
+        .replace(/\s+(4K|FHD|HD|SD)\b.*$/i, '')
+        .replace(/\s+\d{1,3}$/, '')
+        .trim();
+      if (!map.has(base)) {
+        map.set(base, config.excludedChannels.includes(base));
+      }
+    }
+
+    return Array.from(map.entries())
+      .map(([name, excluded]) => ({ name, excluded }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 }

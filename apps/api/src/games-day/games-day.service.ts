@@ -74,10 +74,25 @@ export class GamesDayService {
     );
 
     const config = await this.configService.getConfig();
+    if (!config.isActive) {
+      this.logger.log('Jogos do Dia desativado — sincronização ignorada.');
+      return { created: 0, skipped: 0, games: 0 };
+    }
+
     const CATEGORY_NAME = config.categoryName;
     const BOUQUET_ID = config.bouquetId;
     const ALLOWED_QUALITIES = config.allowedQualities;
+    const EXCLUDED_CHANNELS = config.excludedChannels ?? [];
     const LEAGUE_CHANNEL_MAP = await this.configService.getLeagueChannelMap();
+
+    const isExcluded = (name: string): boolean => {
+      const base = name
+        .replace(/\s+H264\b.*$/i, '')
+        .replace(/\s+(4K|FHD|HD|SD)\b.*$/i, '')
+        .replace(/\s+\d{1,3}$/, '')
+        .trim();
+      return EXCLUDED_CHANNELS.some((ex) => base === ex || name === ex);
+    };
 
     const allFixtures: KickoffFixture[] = (data.response ?? []).filter(
       (f: KickoffFixture) => LEAGUE_CHANNEL_MAP[f.leagueId],
@@ -135,6 +150,7 @@ export class GamesDayService {
         const matchingStreams = allStreams
           .filter((s) => {
             if (!s.name.toUpperCase().includes(keyword.toUpperCase())) return false;
+            if (isExcluded(s.name)) return false;
             const quality = this.getQuality(s.name);
             return quality && ALLOWED_QUALITIES.includes(quality);
           })
