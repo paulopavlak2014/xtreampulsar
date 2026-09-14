@@ -62,6 +62,7 @@ export class GamesDayConfigService {
     categoryName?: string;
     bouquetId?: string | null;
     allowedQualities?: string[];
+    maxChannelsPerMatch?: number;
     syncHour?: number;
     isActive?: boolean;
   }) {

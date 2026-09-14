@@ -1556,14 +1556,15 @@ model StreamProvider {
 }
 
 model GamesDayConfig {
-  id               String   @id @default(cuid())
-  categoryName     String   @default("CANAIS | JOGOS DO DIA")
-  bouquetId        String?
-  allowedQualities String[] @default(["FHD", "HD"])
-  syncHour         Int      @default(6) // Hora BRT (0-23)
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  categoryName        String   @default("CANAIS | JOGOS DO DIA")
+  bouquetId           String?
+  allowedQualities    String[] @default(["FHD", "HD"])
+  maxChannelsPerMatch Int      @default(2)
+  syncHour            Int      @default(6) // Hora BRT (0-23)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   leagues GamesDayLeague[]
 

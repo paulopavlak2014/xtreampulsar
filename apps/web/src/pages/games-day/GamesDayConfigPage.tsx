@@ -328,6 +328,20 @@ export function GamesDayConfigPage() {
               ))}
             </div>
           </Field>
+
+          <Field label="Máx. Canais por Jogo" hint="Limita quantos canais por keyword (evita poluição)">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={config.maxChannelsPerMatch}
+                onChange={(e) => updateConfig.mutate({ maxChannelsPerMatch: parseInt(e.target.value) || 2 })}
+                className="input-field w-20 text-center"
+              />
+              <span className="text-sm text-muted">canais por keyword</span>
+            </div>
+          </Field>
         </div>
       </Section>
 

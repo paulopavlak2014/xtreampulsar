@@ -118,6 +118,7 @@ export class GamesDayService {
 
     this.logger.log(`Total de streams ativos no painel: ${allStreams.length}`);
 
+    const maxPerMatch = config.maxChannelsPerMatch ?? 2;
     let created = 0;
     let skipped = 0;
 
@@ -131,11 +132,13 @@ export class GamesDayService {
         'https://images.icon-icons.com/861/PNG/512/Soccer_icon-icons.com_67819.png';
 
       for (const keyword of channelKeywords) {
-        const matchingStreams = allStreams.filter((s) => {
-          if (!s.name.toUpperCase().includes(keyword.toUpperCase())) return false;
-          const quality = this.getQuality(s.name);
-          return quality && ALLOWED_QUALITIES.includes(quality);
-        });
+        const matchingStreams = allStreams
+          .filter((s) => {
+            if (!s.name.toUpperCase().includes(keyword.toUpperCase())) return false;
+            const quality = this.getQuality(s.name);
+            return quality && ALLOWED_QUALITIES.includes(quality);
+          })
+          .slice(0, maxPerMatch);
 
         if (matchingStreams.length === 0) {
           this.logger.debug(`Nenhum canal encontrado para keyword "${keyword}"`);

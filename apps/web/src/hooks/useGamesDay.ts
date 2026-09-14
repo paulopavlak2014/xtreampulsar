@@ -17,6 +17,7 @@ export interface GamesDayConfig {
   categoryName: string;
   bouquetId: string | null;
   allowedQualities: string[];
+  maxChannelsPerMatch: number;
   syncHour: number;
   isActive: boolean;
   createdAt: string;
@@ -37,7 +38,7 @@ export function useGamesDayConfig() {
 export function useUpdateGamesDayConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'syncHour' | 'isActive'>>) => {
+    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'maxChannelsPerMatch' | 'syncHour' | 'isActive'>>) => {
       const res = await api.put<{ success: boolean; data: GamesDayConfig }>('/games-day-config', data);
       return res.data.data;
     },

@@ -6,27 +6,32 @@ export class GamesDayConfigController {
   constructor(private readonly configService: GamesDayConfigService) {}
 
   @Get()
-  getConfig() {
-    return this.configService.getConfig();
+  async getConfig() {
+    const data = await this.configService.getConfig();
+    return { success: true, data };
   }
 
   @Put()
-  updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; syncHour?: number; isActive?: boolean }) {
-    return this.configService.updateConfig(body);
+  async updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; syncHour?: number; isActive?: boolean }) {
+    const data = await this.configService.updateConfig(body);
+    return { success: true, data };
   }
 
   @Post('leagues')
-  addLeague(@Body() body: { leagueId: number; leagueName: string; channels: string[] }) {
-    return this.configService.addLeague(body);
+  async addLeague(@Body() body: { leagueId: number; leagueName: string; channels: string[] }) {
+    const data = await this.configService.addLeague(body);
+    return { success: true, data };
   }
 
   @Put('leagues/:id')
-  updateLeague(@Param('id') id: string, @Body() body: { leagueName?: string; channels?: string[]; isActive?: boolean; sortOrder?: number }) {
-    return this.configService.updateLeague(id, body);
+  async updateLeague(@Param('id') id: string, @Body() body: { leagueName?: string; channels?: string[]; isActive?: boolean; sortOrder?: number }) {
+    const data = await this.configService.updateLeague(id, body);
+    return { success: true, data };
   }
 
   @Delete('leagues/:id')
-  removeLeague(@Param('id') id: string) {
-    return this.configService.removeLeague(id);
+  async removeLeague(@Param('id') id: string) {
+    await this.configService.removeLeague(id);
+    return { success: true };
   }
 }
