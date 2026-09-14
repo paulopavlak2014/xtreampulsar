@@ -46,6 +46,7 @@ import {
   KeyRound,
   Satellite,
   Star,
+  Gamepad2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -151,6 +152,7 @@ const NAV: NavGroup[] = [
       { label: 'nav.groupsPerms', to: '/groups', icon: KeyRound, perm: 'groups.manage' },
       { label: 'layout.webhooks', to: '/webhooks', icon: Webhook },
       { label: 'nav.tools', to: '/tools/advanced', icon: Wrench },
+      { label: 'Jogos do Dia', to: '/tools/games-day', icon: Gamepad2 },
       { label: 'layout.supportCenter', to: '/support', icon: Bell },
       { label: 'nav.settings', to: '/settings', icon: Settings, perm: 'settings.view' },
     ],

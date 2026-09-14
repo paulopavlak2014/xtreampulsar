@@ -1554,3 +1554,32 @@ model StreamProvider {
 
   @@map("stream_providers")
 }
+
+model GamesDayConfig {
+  id               String   @id @default(cuid())
+  categoryName     String   @default("CANAIS | JOGOS DO DIA")
+  bouquetId        String?
+  allowedQualities String[] @default(["FHD", "HD"])
+  syncHour         Int      @default(6) // Hora BRT (0-23)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  leagues GamesDayLeague[]
+
+  @@map("games_day_config")
+}
+
+model GamesDayLeague {
+  id         String   @id @default(cuid())
+  configId   String
+  config     GamesDayConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  leagueId   Int // KickoffAPI league ID
+  leagueName String // Nome exibido (ex: "Brasileirão Série A")
+  channels   String[] // Keywords dos canais (ex: ["SPORTV", "PREMIERE"])
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+
+  @@unique([configId, leagueId])
+  @@map("games_day_leagues")
+}

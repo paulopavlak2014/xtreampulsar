@@ -1,31 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
+import { GamesDayConfigService } from './games-day-config.service';
 import * as https from 'https';
 
-const BOUQUET_ID = 'cmu15m2xh3k5rgmxygfy7qhel';
-const CATEGORY_NAME = 'CANAIS | JOGOS DO DIA';
 const KICKOFF_API_KEY = 'ft_apliativ_cd6e57aafba56e4cf8708269313c04a87c225dbb';
-
-const ALLOWED_QUALITIES = ['FHD', 'HD'];
-
-const LEAGUE_CHANNEL_MAP: Record<number, string[]> = {
-  71:  ['SPORTV', 'PREMIERE', 'GOAT TV', 'CAZÉ TV', 'AMAZON PRIME'],
-  72:  ['ESPN', 'DISNEY+', 'SPORTYNET', 'REDE TV!', 'GOAT TV'],
-  73:  ['SPORTV', 'PREMIERE', 'GOAT TV', 'AMAZON PRIME'],
-  9:   ['SPORTV', 'PREMIERE'],
-  13:  ['SPORTV', 'PREMIERE', 'BAND SPORTS'],
-  11:  ['SPORTV', 'PREMIERE', 'ESPN', 'GOAT TV', 'AMAZON PRIME'],
-  12:  ['ESPN', 'DISNEY+', 'GOAT TV'],
-  2:   ['TNT', 'HBO MAX', 'SBT'],
-  3:   ['TNT', 'HBO MAX'],
-  848: ['TNT', 'HBO MAX'],
-  39:  ['ESPN', 'DISNEY+'],
-  140: ['ESPN', 'DISNEY+', 'CAZÉ TV'],
-  135: ['ESPN', 'DISNEY+', 'SPORTYNET', 'DAZN'],
-  78:  ['SPORTYNET', 'BAND SPORTS'],
-  61:  ['ESPN', 'DISNEY+', 'DAZN'],
-};
 
 interface KickoffFixture {
   id: number;
@@ -39,7 +18,10 @@ interface KickoffFixture {
 export class GamesDayService {
   private readonly logger = new Logger(GamesDayService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: GamesDayConfigService,
+  ) {}
 
   private fetchJson(url: string, headers: Record<string, string> = {}): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -91,6 +73,12 @@ export class GamesDayService {
       { 'x-api-key': KICKOFF_API_KEY },
     );
 
+    const config = await this.configService.getConfig();
+    const CATEGORY_NAME = config.categoryName;
+    const BOUQUET_ID = config.bouquetId;
+    const ALLOWED_QUALITIES = config.allowedQualities;
+    const LEAGUE_CHANNEL_MAP = await this.configService.getLeagueChannelMap();
+
     const allFixtures: KickoffFixture[] = (data.response ?? []).filter(
       (f: KickoffFixture) => LEAGUE_CHANNEL_MAP[f.leagueId],
     );
@@ -105,12 +93,15 @@ export class GamesDayService {
     });
 
     if (!category) {
+      const createData: any = {
+        name: CATEGORY_NAME,
+        type: 'LIVE',
+      };
+      if (BOUQUET_ID) {
+        createData.categoryBouquets = { create: { bouquetId: BOUQUET_ID } };
+      }
       category = await this.prisma.category.create({
-        data: {
-          name: CATEGORY_NAME,
-          type: 'LIVE',
-          categoryBouquets: { create: { bouquetId: BOUQUET_ID } },
-        },
+        data: createData,
       });
       this.logger.log(`Categoria "${CATEGORY_NAME}" criada.`);
     }

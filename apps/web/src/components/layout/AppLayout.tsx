@@ -25,6 +25,7 @@ const ROUTE_TITLE_KEYS: Record<string, string[]> = {
   '/packages': ['nav.packages'],
   '/migration': ['nav.migration'],
   '/tools/advanced': ['nav.tools'],
+  '/tools/games-day': ['nav.tools', 'Jogos do Dia'],
   '/security': ['nav.security'],
   '/client-requests': ['nav.clientRequests'],
   '/m3u-sources': ['nav.m3uSync'],

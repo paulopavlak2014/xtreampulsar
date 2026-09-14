@@ -25,6 +25,7 @@ import { MigrationPage } from '@/pages/migration/MigrationPage';
 import { SecurityPage } from '@/pages/security/SecurityPage';
 import { SettingsPage } from '@/pages/settings/SettingsPage';
 import { AdvancedToolsPage } from '@/pages/tools/AdvancedToolsPage';
+import { GamesDayConfigPage } from '@/pages/games-day/GamesDayConfigPage';
 import { ChannelsPage } from '@/pages/channels/ChannelsPage';
 import { VodPage } from '@/pages/vod/VodPage';
 import { SeriesPage } from '@/pages/series/SeriesPage';
@@ -233,6 +234,12 @@ const advancedToolsRoute = createRoute({
   getParentRoute: () => layoutRoute,
   path: '/tools/advanced',
   component: AdvancedToolsPage,
+});
+
+const gamesDayRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/tools/games-day',
+  component: GamesDayConfigPage,
 });
 
 const revenueRoute = createRoute({
@@ -556,6 +563,7 @@ const routeTree = rootRoute.addChildren([
     securityRoute,
     settingsRoute,
     advancedToolsRoute,
+    gamesDayRoute,
     revenueRoute,
     userReportRoute,
     profileRoute,
