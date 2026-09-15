@@ -153,7 +153,8 @@ export class GamesDayService {
             if (!s.name.toUpperCase().includes(keyword.toUpperCase())) return false;
             if (isExcluded(s.name)) return false;
             const quality = this.getQuality(s.name);
-            return quality && ALLOWED_QUALITIES.includes(quality);
+            if (quality && !ALLOWED_QUALITIES.includes(quality)) return false;
+            return true;
           })
           .slice(0, maxPerMatch);
 

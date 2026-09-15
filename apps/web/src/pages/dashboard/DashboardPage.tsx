@@ -190,15 +190,14 @@ export function DashboardPage() {
       </div>
 
       {/* Row 2 — Conteúdo Novo (24h) */}
-      {newContent && (
-        <div className="card p-5">
-          <div className="mb-4">
-            <h2 className="font-semibold text-fg">{t('dashboard.newContent24h')}</h2>
-            <p className="text-xs text-muted mt-0.5">{t('dashboard.newContentSubtitle')}</p>
-          </div>
-          {newContentLoading ? (
-            <div className="h-24 flex items-center justify-center"><LoadingSpinner /></div>
-          ) : (
+      <div className="card p-5">
+        <div className="mb-4">
+          <h2 className="font-semibold text-fg">{t('dashboard.newContent24h')}</h2>
+          <p className="text-xs text-muted mt-0.5">{t('dashboard.newContentSubtitle')}</p>
+        </div>
+        {newContentLoading ? (
+          <div className="h-24 flex items-center justify-center"><LoadingSpinner /></div>
+        ) : newContent ? (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Live */}
               <div className="bg-surface-2 rounded-xl p-4">
@@ -300,9 +299,11 @@ export function DashboardPage() {
                 )}
               </div>
             </div>
+          ) : (
+            <p className="text-sm text-muted text-center py-4">{t('dashboard.noNewContent')}</p>
           )}
         </div>
-      )}
+      </div>
 
       {/* Row 2.5 — Per-server live cards */}
       {servers.length > 0 && (
