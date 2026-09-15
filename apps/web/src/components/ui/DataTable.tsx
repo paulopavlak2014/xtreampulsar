@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 export interface Column<T> {
   key: string;
   header: string;
-  render?: (row: T) => React.ReactNode;
+  render?: (row: T, index: number) => React.ReactNode;
   className?: string;
   headerClassName?: string;
   mobileHide?: boolean; // hide in mobile card view
@@ -134,7 +134,7 @@ export function DataTable<T>({
       {/* Mobile card view */}
       {mobileCards && (
         <div className="md:hidden space-y-2 p-2">
-          {data.map((row) => {
+          {data.map((row, rowIdx) => {
             const id = getKey(row);
             const selected = selectedIds?.has(id);
             return (
@@ -152,7 +152,7 @@ export function DataTable<T>({
                 {visibleColumns.map((col) => (
                   <div key={col.key} className="flex items-start justify-between gap-2">
                     <span className="text-xs text-muted flex-shrink-0">{col.mobileLabel ?? col.header}</span>
-                    <span className="text-right">{col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '')}</span>
+                    <span className="text-right">{col.render ? col.render(row, rowIdx) : String((row as Record<string, unknown>)[col.key] ?? '')}</span>
                   </div>
                 ))}
               </div>
@@ -181,7 +181,7 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {data.map((row) => {
+            {data.map((row, rowIdx) => {
               const id = getKey(row);
               const selected = selectedIds?.has(id);
               return (
@@ -193,7 +193,7 @@ export function DataTable<T>({
                   )}
                   {columns.map((col) => (
                     <td key={col.key} className={cn('table-td', col.className)}>
-                      {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? '')}
+                      {col.render ? col.render(row, rowIdx) : String((row as Record<string, unknown>)[col.key] ?? '')}
                     </td>
                   ))}
                 </tr>

@@ -607,6 +607,7 @@ export class XtreamController {
       isFallback?: boolean;
       redirectCount?: number;
       upstreamHeaders?: Record<string, string>;
+      cookie?: string;
     },
   ): void {
     const onEnd = opts?.onEnd;
@@ -635,20 +636,37 @@ export class XtreamController {
           // Rewrite için gzip'siz düz metin iste (buffer + parse edilebilsin).
           'Accept-Encoding': 'identity',
           'Connection': 'keep-alive',
+          ...(opts?.cookie ? { 'Cookie': opts.cookie } : {}),
           ...(opts?.upstreamHeaders ?? {}),
         },
       },
       (proxyRes) => {
-        // Fallback video URL'i redirect ederse (CDN/cloud) takip et (maks 3).
+        // CDN'ler sıkça token'lı 302 döner (örn. up-cdn.com.br): yanıt, isteği YAPAN
+        // IP'ye bağlı oturum (set-cookie) + imzalı Location içerir. İstemciye 302'yi
+        // iletmek token/IP/cookie uyuşmazlığından 403 ile biterdi. Bu yüzden burada
+        // panel KENDİSİ redirect'i takip eder (maks 3) ve cookie'leri taşır; istemci
+        // her zaman nihai stream'i alır. İmzasız düz kaynaklar tek hop'ta tamamlanır.
         const sCode = proxyRes.statusCode ?? 200;
-        if (opts?.isFallback && [301, 302, 303, 307, 308].includes(sCode)) {
+        if ([301, 302, 303, 307, 308].includes(sCode)) {
           const loc = proxyRes.headers['location'];
-          const rc = opts.redirectCount ?? 0;
+          const rc = opts?.redirectCount ?? 0;
           if (loc && rc < 3 && !res.headersSent) {
+            // Set-Cookie'leri topla → sonraki isteğe ekle (bakım: up-cdn PHPSESSID).
+            const setCookies = proxyRes.headers['set-cookie'];
+            const cookies = (Array.isArray(setCookies) ? setCookies : [setCookies])
+              .filter((c): c is string => !!c)
+              .map((c) => c.split(';')[0]);
+            const prev = opts?.cookie?.split('; ').filter(Boolean) ?? [];
+            const merged = Array.from(new Set([...prev, ...cookies])).join('; ');
             proxyRes.resume();
             try {
               const next = new URL(String(loc), streamUrl).toString();
-              this.proxyToUpstream(next, req, res, { isFallback: true, redirectCount: rc + 1 });
+              this.proxyToUpstream(next, req, res, {
+                ...opts,
+                isFallback: opts?.isFallback,
+                redirectCount: rc + 1,
+                cookie: merged,
+              });
             } catch { if (!res.headersSent) res.status(HttpStatus.BAD_GATEWAY).end(); }
             return;
           }

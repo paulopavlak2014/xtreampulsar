@@ -47,6 +47,13 @@ export class CategoryController {
     return this.categoryService.create(dto);
   }
 
+  @Patch('reorder')
+  @Roles('ADMIN', 'RESELLER')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async reorder(@Body() body: { categoryIds: string[] }): Promise<void> {
+    await this.categoryService.reorder(body.categoryIds);
+  }
+
   @Patch(':id')
   @Roles('ADMIN', 'RESELLER')
   update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {

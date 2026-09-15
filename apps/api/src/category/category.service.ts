@@ -74,6 +74,14 @@ export class CategoryService {
     await this.prisma.category.delete({ where: { id } });
   }
 
+  async reorder(categoryIds: string[]): Promise<void> {
+    await this.prisma.$transaction(
+      categoryIds.map((id, index) =>
+        this.prisma.category.update({ where: { id }, data: { sortOrder: index } }),
+      ),
+    );
+  }
+
   findStreams(id: string, page = 1, limit = 20) {
     return this.prisma.stream.findMany({
       where: { categoryId: id, isActive: true },

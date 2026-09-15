@@ -66,3 +66,12 @@ export function useDeleteCategory() {
     onError: () => toast.error('Falha ao excluir'),
   });
 }
+
+export function useReorderCategories() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (categoryIds: string[]) =>
+      api.patch('/categories/reorder', { categoryIds }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['categories'] }),
+  });
+}

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Trash2, Edit2, FolderOpen, Square, CheckSquare, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Edit2, FolderOpen, Square, CheckSquare, RefreshCw, ArrowUp, ArrowDown } from 'lucide-react';
 import { DataTable, type Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, type Category } from '@/hooks/useCategories';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, useReorderCategories, type Category } from '@/hooks/useCategories';
 import { useBouquets } from '@/hooks/useBouquets';
 import { CountedBouquetSelector } from '@/components/ui/CountedBouquetSelector';
 import { cn } from '@/lib/utils';
@@ -48,6 +48,16 @@ export function CategoriesPage() {
   const createCat = useCreateCategory();
   const updateCat = useUpdateCategory();
   const deleteCat = useDeleteCategory();
+  const reorderCat = useReorderCategories();
+
+  const moveCategory = (index: number, direction: -1 | 1) => {
+    const next = [...categories];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    const [item] = next.splice(index, 1);
+    next.splice(target, 0, item);
+    reorderCat.mutate(next.map((c) => c.id));
+  };
 
   const toggleSelect = (id: string) => setSelected((prev) => {
     const next = new Set(prev);
@@ -206,8 +216,14 @@ export function CategoriesPage() {
       key: 'actions',
       header: '',
       className: 'w-px',
-      render: (row) => (
+      render: (row, index) => (
         <div className="flex items-center gap-1">
+          <button className="btn btn-ghost p-1.5" onClick={() => moveCategory(index, -1)} disabled={index === 0}>
+            <ArrowUp className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost p-1.5" onClick={() => moveCategory(index, 1)} disabled={index === categories.length - 1}>
+            <ArrowDown className="w-3.5 h-3.5" />
+          </button>
           <button className="btn btn-ghost p-1.5" onClick={() => openEdit(row)}>
             <Edit2 className="w-3.5 h-3.5" />
           </button>
