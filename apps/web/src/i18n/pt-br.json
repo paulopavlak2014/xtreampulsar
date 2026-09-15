@@ -498,6 +498,8 @@
     "autoRefreshOff": "Atualização Automática: desligada",
     "refresh": "Atualizar",
     "moveSelected": "Mover {{n}} Selecionados",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
     "addChannel": "Adicionar Canal",
     "searchPlaceholder": "Buscar nome ou URL…",
     "allServers": "Todos os Servidores",

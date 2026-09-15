@@ -30,6 +30,8 @@ import {
   ListVideo,
   AudioLines,
   SlidersHorizontal,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useStreamHealth, useManualHealthCheck } from '@/hooks/useStreamHealth';
@@ -608,6 +610,15 @@ export function StreamsPage({ type, isRadio: isRadioMode = false }: { type?: Str
     });
   };
 
+  const moveStream = (index: number, direction: -1 | 1) => {
+    const items = sortedItems.length > 0 ? sortedItems : (data?.items ?? []);
+    const target = index + direction;
+    if (target < 0 || target >= items.length) return;
+    const next = arrayMove(items, index, target);
+    setSortedItems(next);
+    reorderStreams.mutate(next.map((i) => i.id));
+  };
+
   const columns: Column<Stream>[] = [
     {
       key: 'externalId',
@@ -1044,8 +1055,28 @@ export function StreamsPage({ type, isRadio: isRadioMode = false }: { type?: Str
                 {
                   key: '_drag',
                   header: '',
-                  className: 'w-8',
-                  render: (r) => <SortHandle id={r.id} />,
+                  className: 'w-20',
+                  render: (r, index) => (
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        className="p-1 rounded hover:bg-surface-2 text-muted hover:text-fg disabled:opacity-30"
+                        onClick={() => moveStream(index, -1)}
+                        disabled={index === 0}
+                        title={t('streams.moveUp')}
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        className="p-1 rounded hover:bg-surface-2 text-muted hover:text-fg disabled:opacity-30"
+                        onClick={() => moveStream(index, 1)}
+                        disabled={index === (sortedItems.length > 0 ? sortedItems : (data?.items ?? [])).length - 1}
+                        title={t('streams.moveDown')}
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                      <SortHandle id={r.id} />
+                    </div>
+                  ),
                 },
                 ...columns,
               ]}
