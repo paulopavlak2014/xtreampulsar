@@ -305,6 +305,25 @@ export function GamesDayConfigPage() {
             </select>
           </Field>
 
+          <Field label="Logo dos Canais" hint="URL da logo exibida nos canais dos jogos (deixe vazio para usar logo da equipe)">
+            <div className="flex items-center gap-3">
+              <input
+                value={config.channelLogo ?? ''}
+                onChange={(e) => updateConfig.mutate({ channelLogo: e.target.value || null })}
+                className="input flex-1"
+                placeholder="https://exemplo.com/logo.png"
+              />
+              {(config.channelLogo ?? '') && (
+                <img
+                  src={config.channelLogo!}
+                  alt="Logo"
+                  className="w-8 h-8 rounded object-cover border border-border"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              )}
+            </div>
+          </Field>
+
           <Field label="Horário de Sync" hint="Hora em Brasília (0-23)">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted" />

@@ -18,7 +18,7 @@ export class GamesDayConfigController {
   }
 
   @Put()
-  async updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; maxChannelsPerMatch?: number; syncHour?: number; isActive?: boolean }) {
+  async updateConfig(@Body() body: { categoryName?: string; bouquetId?: string | null; allowedQualities?: string[]; maxChannelsPerMatch?: number; excludedChannels?: string[]; channelLogo?: string | null; syncHour?: number; isActive?: boolean }) {
     const data = await this.configService.updateConfig(body);
     return { success: true, data };
   }

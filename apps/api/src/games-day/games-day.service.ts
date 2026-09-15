@@ -83,6 +83,7 @@ export class GamesDayService {
     const BOUQUET_ID = config.bouquetId;
     const ALLOWED_QUALITIES = config.allowedQualities;
     const EXCLUDED_CHANNELS = config.excludedChannels ?? [];
+    const CHANNEL_LOGO = config.channelLogo ?? null;
     const LEAGUE_CHANNEL_MAP = await this.configService.getLeagueChannelMap();
 
     const isExcluded = (name: string): boolean => {
@@ -127,8 +128,8 @@ export class GamesDayService {
     this.logger.log(`${deleted.count} canais antigos removidos.`);
 
     const allStreams = await this.prisma.stream.findMany({
-      where: { isActive: true },
-      select: { id: true, name: true, primaryUrl: true },
+      where: { isActive: true, category: { type: 'LIVE' } },
+      select: { id: true, name: true, primaryUrl: true, tvgLogo: true },
     });
 
     this.logger.log(`Total de streams ativos no painel: ${allStreams.length}`);
@@ -142,9 +143,9 @@ export class GamesDayService {
       const home = fixture.homeTeam.name;
       const away = fixture.awayTeam.name;
       const time = this.formatTime(fixture.date);
-      const logo =
-        fixture.homeTeam.logo ||
-        'https://images.icon-icons.com/861/PNG/512/Soccer_icon-icons.com_67819.png';
+      const logo = CHANNEL_LOGO
+        || fixture.homeTeam.logo
+        || 'https://images.icon-icons.com/861/PNG/512/Soccer_icon-icons.com_67819.png';
 
       for (const keyword of channelKeywords) {
         const matchingStreams = allStreams

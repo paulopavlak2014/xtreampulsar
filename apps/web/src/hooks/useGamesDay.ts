@@ -19,6 +19,7 @@ export interface GamesDayConfig {
   allowedQualities: string[];
   maxChannelsPerMatch: number;
   excludedChannels: string[];
+  channelLogo: string | null;
   syncHour: number;
   isActive: boolean;
   createdAt: string;
@@ -54,7 +55,7 @@ export function useSportsChannels() {
 export function useUpdateGamesDayConfig() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'maxChannelsPerMatch' | 'excludedChannels' | 'syncHour' | 'isActive'>>) => {
+    mutationFn: async (data: Partial<Pick<GamesDayConfig, 'categoryName' | 'bouquetId' | 'allowedQualities' | 'maxChannelsPerMatch' | 'excludedChannels' | 'channelLogo' | 'syncHour' | 'isActive'>>) => {
       const res = await api.put<{ success: boolean; data: GamesDayConfig }>('/games-day-config', data);
       return res.data.data;
     },

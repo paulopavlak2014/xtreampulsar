@@ -72,6 +72,7 @@ export class GamesDayConfigService {
     allowedQualities?: string[];
     maxChannelsPerMatch?: number;
     excludedChannels?: string[];
+    channelLogo?: string | null;
     syncHour?: number;
     isActive?: boolean;
   }) {
@@ -128,7 +129,7 @@ export class GamesDayConfigService {
   async getSportsChannels(): Promise<{ name: string; excluded: boolean }[]> {
     const config = await this.getConfig();
     const streams = await this.prisma.stream.findMany({
-      where: { isActive: true },
+      where: { isActive: true, category: { type: 'LIVE' } },
       select: { name: true },
       orderBy: { name: 'asc' },
     });
