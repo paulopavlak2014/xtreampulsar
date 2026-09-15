@@ -19,6 +19,8 @@ import {
   TvMinimal,
   Film,
   ListVideo,
+  Gamepad2,
+  RefreshCw,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -48,6 +50,7 @@ import {
 } from '@/hooks/useDashboard';
 import { useClientRequestStats } from '@/hooks/useClientRequests';
 import { useSocket } from '@/hooks/useSocket';
+import { useGamesDayToday, useSyncGamesDay } from '@/hooks/useGamesDay';
 import { cn } from '@/lib/utils';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
@@ -102,6 +105,8 @@ export function DashboardPage() {
   const { data: servers = [] } = useServerStats();
   const { data: reqStats } = useClientRequestStats();
   const { data: newContent, isLoading: newContentLoading } = useNewContent24h();
+  const { data: gamesDay } = useGamesDayToday();
+  const syncGamesDay = useSyncGamesDay();
 
   // Top 4 live cards — prefer WebSocket-pushed data, fall back to polled stats
   const activeConns = live?.connections?.active ?? stats?.activeConnections ?? 0;
@@ -304,6 +309,57 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Row 2.75 — Jogos do Dia */}
+      {gamesDay && (
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Gamepad2 className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-fg">Jogos do Dia</h2>
+                <p className="text-xs text-muted">
+                  {gamesDay.active
+                    ? `${gamesDay.games.length} jogo(s) · ${gamesDay.totalChannels} canal(is) · Sync às ${gamesDay.syncHour}:00 BRT`
+                    : 'Desativado'}
+                </p>
+              </div>
+            </div>
+            {gamesDay.active && (
+              <button
+                onClick={() => syncGamesDay.mutate()}
+                disabled={syncGamesDay.isPending}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={cn('w-3.5 h-3.5', syncGamesDay.isPending && 'animate-spin')} />
+                Sincronizar
+              </button>
+            )}
+          </div>
+          {gamesDay.active && gamesDay.games.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+              {gamesDay.games.map((g) => (
+                <div key={g.id} className="flex items-center gap-2.5 bg-surface-2 rounded-lg px-3 py-2">
+                  {g.logo ? (
+                    <img src={g.logo} alt="" className="w-6 h-6 rounded object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  ) : (
+                    <Gamepad2 className="w-4 h-4 text-muted shrink-0" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-fg truncate">{g.home} x {g.away}</p>
+                    <p className="text-[11px] text-muted">{g.time}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {gamesDay.active && gamesDay.games.length === 0 && (
+            <p className="text-sm text-muted text-center py-2">Nenhum jogo mapeado para hoje</p>
+          )}
+        </div>
+      )}
 
       {/* Row 2.5 — Per-server live cards */}
       {servers.length > 0 && (

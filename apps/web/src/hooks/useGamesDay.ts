@@ -119,8 +119,35 @@ export function useSyncGamesDay() {
     },
     onSuccess: (result) => {
       void qc.invalidateQueries({ queryKey: ['streams'] });
+      void qc.invalidateQueries({ queryKey: ['games-day-today'] });
       toast.success(`${result.games} jogos → ${result.created} canais criados`);
     },
     onError: () => toast.error('Erro ao sincronizar jogos'),
+  });
+}
+
+export interface GamesDayTodayGame {
+  id: number;
+  home: string;
+  away: string;
+  time: string;
+  logo: string | null;
+}
+
+export interface GamesDayToday {
+  active: boolean;
+  syncHour: number;
+  totalChannels: number;
+  games: GamesDayTodayGame[];
+}
+
+export function useGamesDayToday() {
+  return useQuery({
+    queryKey: ['games-day-today'],
+    queryFn: async () => {
+      const { data } = await api.get<{ success: boolean; data: GamesDayToday }>('/games-day/today');
+      return data.data;
+    },
+    refetchInterval: 120_000,
   });
 }

@@ -207,4 +207,46 @@ export class GamesDayService {
       this.logger.error('Erro no cron de Jogos do Dia:', err);
     }
   }
+
+  async getTodaySummary() {
+    const config = await this.configService.getConfig();
+    if (!config.isActive) {
+      return { active: false, games: [], totalChannels: 0, syncHour: config.syncHour };
+    }
+
+    const today = this.getTodayBrasilia();
+    let fixtures: KickoffFixture[] = [];
+    try {
+      const data = await this.fetchJson(
+        `https://api.kickoffapi.com/api/v1/fixtures?date=${today}`,
+        { 'x-api-key': KICKOFF_API_KEY },
+      );
+      const LEAGUE_CHANNEL_MAP = await this.configService.getLeagueChannelMap();
+      fixtures = (data.response ?? []).filter((f: KickoffFixture) => LEAGUE_CHANNEL_MAP[f.leagueId]);
+    } catch {}
+
+    const category = await this.prisma.category.findFirst({
+      where: { name: config.categoryName },
+    });
+
+    let totalChannels = 0;
+    if (category) {
+      totalChannels = await this.prisma.stream.count({ where: { categoryId: category.id, isActive: true } });
+    }
+
+    const games = fixtures.map((f) => ({
+      id: f.id,
+      home: f.homeTeam.name,
+      away: f.awayTeam.name,
+      time: this.formatTime(f.date),
+      logo: f.homeTeam.logo || null,
+    }));
+
+    return {
+      active: true,
+      syncHour: config.syncHour,
+      totalChannels,
+      games,
+    };
+  }
 }
