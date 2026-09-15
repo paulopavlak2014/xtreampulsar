@@ -17,6 +17,8 @@ import {
   Server as ServerIcon,
   MessageSquareWarning,
   TvMinimal,
+  Film,
+  ListVideo,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -42,6 +44,7 @@ import {
   useRecentActivity,
   useTopStreams,
   useServerStats,
+  useNewContent24h,
 } from '@/hooks/useDashboard';
 import { useClientRequestStats } from '@/hooks/useClientRequests';
 import { useSocket } from '@/hooks/useSocket';
@@ -98,6 +101,7 @@ export function DashboardPage() {
   const { data: activity = [], isLoading: activityLoading } = useRecentActivity(20);
   const { data: servers = [] } = useServerStats();
   const { data: reqStats } = useClientRequestStats();
+  const { data: newContent, isLoading: newContentLoading } = useNewContent24h();
 
   // Top 4 live cards — prefer WebSocket-pushed data, fall back to polled stats
   const activeConns = live?.connections?.active ?? stats?.activeConnections ?? 0;
@@ -184,6 +188,121 @@ export function DashboardPage() {
           <span className="text-xl font-bold tabular-nums text-fg">{reqStats?.openRequests ?? '—'}</span>
         </Link>
       </div>
+
+      {/* Row 2 — Conteúdo Novo (24h) */}
+      {newContent && (
+        <div className="card p-5">
+          <div className="mb-4">
+            <h2 className="font-semibold text-fg">{t('dashboard.newContent24h')}</h2>
+            <p className="text-xs text-muted mt-0.5">{t('dashboard.newContentSubtitle')}</p>
+          </div>
+          {newContentLoading ? (
+            <div className="h-24 flex items-center justify-center"><LoadingSpinner /></div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Live */}
+              <div className="bg-surface-2 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-success/15 flex items-center justify-center">
+                    <Tv className="w-4 h-4 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted">{t('dashboard.newLiveChannels')}</p>
+                    <p className="text-lg font-bold text-success tabular-nums">{newContent.newLive.count}</p>
+                  </div>
+                </div>
+                {newContent.newLive.count > 0 ? (
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                    {newContent.newLive.items.slice(0, 8).map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 min-w-0">
+                        {item.logo ? <img src={item.logo} alt="" className="w-5 h-5 rounded shrink-0 object-cover" /> : <Tv className="w-3.5 h-3.5 text-muted shrink-0" />}
+                        <span className="text-xs text-fg truncate">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted italic">—</p>
+                )}
+              </div>
+
+              {/* VOD */}
+              <div className="bg-surface-2 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
+                    <Film className="w-4 h-4 text-info" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted">{t('dashboard.newVodMovies')}</p>
+                    <p className="text-lg font-bold text-info tabular-nums">{newContent.newVod.count}</p>
+                  </div>
+                </div>
+                {newContent.newVod.count > 0 ? (
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                    {newContent.newVod.items.slice(0, 8).map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 min-w-0">
+                        {item.logo ? <img src={item.logo} alt="" className="w-5 h-5 rounded shrink-0 object-cover" /> : <Film className="w-3.5 h-3.5 text-muted shrink-0" />}
+                        <span className="text-xs text-fg truncate">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted italic">—</p>
+                )}
+              </div>
+
+              {/* Séries */}
+              <div className="bg-surface-2 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                    <TvMinimal className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted">{t('dashboard.newSeries')}</p>
+                    <p className="text-lg font-bold text-primary tabular-nums">{newContent.newSeries.count}</p>
+                  </div>
+                </div>
+                {newContent.newSeries.count > 0 ? (
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                    {newContent.newSeries.items.slice(0, 8).map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 min-w-0">
+                        {item.logo ? <img src={item.logo} alt="" className="w-5 h-5 rounded shrink-0 object-cover" /> : <TvMinimal className="w-3.5 h-3.5 text-muted shrink-0" />}
+                        <span className="text-xs text-fg truncate">{item.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted italic">—</p>
+                )}
+              </div>
+
+              {/* Episódios */}
+              <div className="bg-surface-2 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center">
+                    <ListVideo className="w-4 h-4 text-warning" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted">{t('dashboard.newEpisodes')}</p>
+                    <p className="text-lg font-bold text-warning tabular-nums">{newContent.newEpisodes.count}</p>
+                  </div>
+                </div>
+                {newContent.newEpisodes.count > 0 ? (
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                    {newContent.newEpisodes.items.slice(0, 8).map((item) => (
+                      <div key={item.id} className="flex items-center gap-2 min-w-0">
+                        <ListVideo className="w-3.5 h-3.5 text-muted shrink-0" />
+                        <span className="text-xs text-fg truncate">{item.seriesName} — S{item.season}E{item.episode}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted italic">—</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Row 2.5 — Per-server live cards */}
       {servers.length > 0 && (

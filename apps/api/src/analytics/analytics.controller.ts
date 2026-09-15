@@ -121,6 +121,11 @@ export class AnalyticsController {
     return this.analyticsService.getRecentActivity(limit ? parseInt(limit, 10) : 20);
   }
 
+  @Get('new-content-24h')
+  getNewContent24h() {
+    return this.analyticsService.getNewContent24h();
+  }
+
   @Get('revenue-report')
   getRevenueDashboard(
     @Query('startDate') startDate?: string,

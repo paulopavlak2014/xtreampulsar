@@ -174,3 +174,39 @@ export function useRecentActivity(limit = 20) {
     refetchInterval: 30_000,
   });
 }
+
+export interface NewContentItem {
+  id: string;
+  name: string;
+  logo?: string | null;
+  category: string;
+  createdAt: string;
+}
+
+export interface NewEpisodeItem {
+  id: string;
+  title?: string | null;
+  season: number;
+  episode: number;
+  seriesName: string;
+  seriesId: string;
+  createdAt: string;
+}
+
+export interface NewContent24h {
+  newLive: { count: number; items: NewContentItem[] };
+  newVod: { count: number; items: NewContentItem[] };
+  newSeries: { count: number; items: NewContentItem[] };
+  newEpisodes: { count: number; items: NewEpisodeItem[] };
+}
+
+export function useNewContent24h() {
+  return useQuery<NewContent24h>({
+    queryKey: ['analytics', 'new-content-24h'],
+    queryFn: async () => {
+      const res = await api.get<{ success: boolean; data: NewContent24h }>('/analytics/new-content-24h');
+      return res.data.data;
+    },
+    refetchInterval: 60_000,
+  });
+}

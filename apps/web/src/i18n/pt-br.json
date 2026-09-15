@@ -160,7 +160,14 @@
     "channelRequests": "Solicitações de Canais",
     "onlineByCountry": "Online por país",
     "byRegionSubtitle": "Conexões ativas por região",
-    "noActiveConnections": "Nenhuma conexão ativa"
+    "noActiveConnections": "Nenhuma conexão ativa",
+    "newContent24h": "Conteúdo Novo (24h)",
+    "newContentSubtitle": "Canais, filmes e séries adicionados nas últimas 24 horas",
+    "newLiveChannels": "Canais Ao Vivo",
+    "newVodMovies": "Filmes (VOD)",
+    "newSeries": "Séries",
+    "newEpisodes": "Episódios",
+    "noNewContent": "Nenhum conteúdo novo nas últimas 24h"
   },
   "users": {
     "title": "Usuários",

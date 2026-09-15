@@ -1080,4 +1080,50 @@ export class AnalyticsService {
       recentTransactions,
     };
   }
+
+  async getNewContent24h() {
+    const cutoff = new Date(Date.now() - 24 * 3600_000);
+
+    const safe = async <T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> => {
+      try { return await fn(); }
+      catch (err) { this.logger.error(`getNewContent24h[${label}]: ${(err as Error).message}`); return fallback; }
+    };
+
+    const [newLive, newVod, newSeries, newEpisodes] = await Promise.all([
+      safe('newLive', () => this.prisma.stream.findMany({
+        where: { createdAt: { gte: cutoff }, category: { type: 'LIVE' }, isActive: true },
+        select: { id: true, name: true, tvgLogo: true, createdAt: true, category: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }), []),
+      safe('newVod', () => this.prisma.stream.findMany({
+        where: { createdAt: { gte: cutoff }, category: { type: 'VOD' }, isActive: true },
+        select: { id: true, name: true, tvgLogo: true, createdAt: true, category: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }), []),
+      safe('newSeries', () => this.prisma.stream.findMany({
+        where: { createdAt: { gte: cutoff }, category: { type: 'SERIES' }, isActive: true },
+        select: { id: true, name: true, tvgLogo: true, createdAt: true, category: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }), []),
+      safe('newEpisodes', () => this.prisma.episode.findMany({
+        where: { createdAt: { gte: cutoff } },
+        select: {
+          id: true, title: true, season: true, episode: true, createdAt: true,
+          series: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }), []),
+    ]);
+
+    return {
+      newLive: { count: newLive.length, items: newLive.map(s => ({ id: s.id, name: s.name, logo: s.tvgLogo, category: s.category.name, createdAt: s.createdAt })) },
+      newVod: { count: newVod.length, items: newVod.map(s => ({ id: s.id, name: s.name, logo: s.tvgLogo, category: s.category.name, createdAt: s.createdAt })) },
+      newSeries: { count: newSeries.length, items: newSeries.map(s => ({ id: s.id, name: s.name, logo: s.tvgLogo, category: s.category.name, createdAt: s.createdAt })) },
+      newEpisodes: { count: newEpisodes.length, items: newEpisodes.map(e => ({ id: e.id, title: e.title, season: e.season, episode: e.episode, seriesName: e.series.name, seriesId: e.series.id, createdAt: e.createdAt })) },
+    };
+  }
 }
